@@ -19,6 +19,8 @@ public class WorkoutApi
             ?? new();
     }
 
+
+    //get all days 
     public async Task<List<int>> GetDays(int planId)
     {
         return await _http.GetFromJsonAsync<List<int>>(
@@ -26,13 +28,13 @@ public class WorkoutApi
             ?? new();
     }
 
+    //get sets based on the plan and the selected day 
     public async Task<List<WorkoutSetDto>> GetSets(int planId, int day)
     {
         return await _http.GetFromJsonAsync<List<WorkoutSetDto>>(
             $"api/plans/{planId}/days/{day}/sets")
             ?? new();
     }
-
     public async Task UpdateSet(int planId, int day, int index, bool completed)
     {
         await _http.PostAsJsonAsync(
