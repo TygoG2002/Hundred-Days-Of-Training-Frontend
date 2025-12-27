@@ -44,10 +44,10 @@ public class WorkoutApi
 
     public async Task<(int done, int total)> GetDayProgress(int planId, int day)
     {
-        var sets = await GetSets(planId, day);
-        return (
-            sets.Count(s => s.Completed),
-            sets.Count
-        );
+        var result = await _http.GetFromJsonAsync<DayProgressDto>(
+            $"api/plans/{planId}/days/{day}/progress");
+
+        return (result!.Done, result.Total);
     }
+
 }
