@@ -1,0 +1,57 @@
+﻿@page "/plan/{planId:int}/day/{day:int}"
+@inject WorkoutApi Api
+
+<h1>Day @day</h1>
+
+@if (Sets == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="sets">
+        @for (int i = 0; i < Sets.Count; i++)
+        {
+            var index = i;
+
+            <label class="set">
+                <input type="checkbox"
+                       @bind="Sets[index].Completed"
+                       @bind:after="() => OnToggle(index)" />
+                <span>@Sets[index].Reps reps</span>
+            </label>
+        }
+    </div>
+
+    <p class="total">
+        Completed: @Completed / @Total sets
+    </p>
+}
+
+@code {
+    [Parameter] public int planId { get; set; }
+    [Parameter] public int day { get; set; }
+
+    List<WorkoutSetDto>? Sets;
+    int Completed;
+    int Total;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Sets = await Api.GetSets(planId, day);
+        await LoadProgress();
+    }
+
+    async Task OnToggle(int index)
+    {
+        await Api.UpdateSet(planId, day, index, Sets![index].Completed);
+        await LoadProgress();
+    }
+
+    async Task LoadProgress()
+    {
+        var p = await Api.GetDayProgress(planId, day);
+        Completed = p.done;
+        Total = p.total;
+    }
+}

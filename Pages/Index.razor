@@ -1,0 +1,28 @@
+﻿@using HundredDays.Components
+@inject WorkoutApi Api
+@page "/"
+
+@if (Plans == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="grid">
+        @foreach (var plan in Plans)
+        {
+            <WorkoutCard Title="@plan.Name"
+                         Subtitle="@($"{plan.TargetReps} reps")"
+                         PlanId="@plan.Id" />
+        }
+    </div>
+}
+
+@code {
+    List<WorkoutPlanDto>? Plans;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Plans = await Api.GetPlans();
+    }
+}

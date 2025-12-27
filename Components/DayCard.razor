@@ -1,0 +1,26 @@
+﻿@inject NavigationManager Nav
+@inject WorkoutApi Api
+
+<div class="card" @onclick="Go">
+    <h3>Day @DayNumber</h3>
+    <p>@ProgressText</p>
+</div>
+
+@code {
+    [Parameter] public int DayNumber { get; set; }
+    [Parameter] public int PlanId { get; set; }
+
+    string ProgressText = "Not started";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var (done, total) = await Api.GetDayProgress(PlanId, DayNumber);
+        if (total > 0)
+            ProgressText = $"{done} / {total} sets";
+    }
+
+    void Go()
+    {
+        Nav.NavigateTo($"/plan/{PlanId}/day/{DayNumber}");
+    }
+}

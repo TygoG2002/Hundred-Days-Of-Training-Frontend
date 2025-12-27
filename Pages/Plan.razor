@@ -1,0 +1,31 @@
+﻿@page "/plan/{planId:int}"
+@using HundredDays.Components
+@using HundredDays.Services
+@inject WorkoutApi Api
+
+<h1>Workout plan</h1>
+
+@if (Days == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="grid">
+        @foreach (var day in Days)
+        {
+            <DayCard DayNumber="day" PlanId="planId" />
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int planId { get; set; }
+
+    List<int>? Days;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Days = await Api.GetDays(planId);
+    }
+}
