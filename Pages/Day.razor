@@ -15,9 +15,10 @@ else
             var index = i;
 
             <label class="set">
-                <input type="checkbox"
-                       @bind="Sets[index].Completed"
-                       @bind:after="() => OnToggle(index)" />
+                <InputCheckbox Value="Sets[index].Completed"
+                               ValueChanged="v => OnToggle(index, v)"
+                               ValueExpression="@(() => Sets[index].Completed)" />
+
                 <span>@Sets[index].Reps reps</span>
             </label>
         }
@@ -42,9 +43,11 @@ else
         await LoadProgress();
     }
 
-    async Task OnToggle(int index)
+    async Task OnToggle(int index, bool completed)
     {
-        await Api.UpdateSet(planId, day, index, Sets![index].Completed);
+        Sets![index].Completed = completed;
+
+        await Api.UpdateSet(planId, day, index, completed);
         await LoadProgress();
     }
 
