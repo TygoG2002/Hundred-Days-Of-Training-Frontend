@@ -35,12 +35,14 @@ public class WorkoutApi
             $"api/plans/{planId}/days/{day}/sets")
             ?? new();
     }
-    public async Task UpdateSet(int planId, int day, int index, bool completed)
+    public async Task UpdateSet(int setId, bool completed)
     {
         await _http.PostAsJsonAsync(
-            $"api/plans/{planId}/days/{day}/sets/{index}",
+            $"api/plans/sets/{setId}",
             completed);
     }
+
+
 
     public async Task<(int done, int total)> GetDayProgress(int planId, int day)
     {

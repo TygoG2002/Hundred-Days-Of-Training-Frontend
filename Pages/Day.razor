@@ -1,32 +1,41 @@
 ﻿@page "/plan/{planId:int}/day/{day:int}"
 @inject WorkoutApi Api
+@inject NavigationManager Nav
 
-<h1>Day @day</h1>
+<h1 class="page-title">Day @day</h1>
 
 @if (Sets == null)
 {
-    <p>Loading...</p>
+    <p>Loading…</p>
 }
 else
 {
+    <div class="progress-wrapper">
+        <div class="progress-bar">
+            <div class="progress-fill"
+                 style="width:@ProgressPercent%"></div>
+        </div>
+        <p class="progress-text">@Completed / @Total completed</p>
+    </div>
+
     <div class="sets">
-        @for (int i = 0; i < Sets.Count; i++)
+        @foreach (var set in Sets)
         {
-            var index = i;
-
             <label class="set">
-                <InputCheckbox Value="Sets[index].Completed"
-                               ValueChanged="v => OnToggle(index, v)"
-                               ValueExpression="@(() => Sets[index].Completed)" />
-
-                <span>@Sets[index].Reps reps</span>
+                <input type="checkbox"
+                       checked="@set.Completed"
+                       @onchange="e => OnToggle(set.Id, (bool)e.Value!)" />
+                <span>@set.Reps reps</span>
             </label>
         }
     </div>
 
-    <p class="total">
-        Completed: @Completed / @Total sets
-    </p>
+    @if (IsFinished)
+    {
+        <button class="finish-button" @onclick="GoBack">
+            Finish day
+        </button>
+    }
 }
 
 @code {
@@ -37,17 +46,23 @@ else
     int Completed;
     int Total;
 
+    int ProgressPercent =>
+        Total == 0 ? 0 : (int)((Completed / (double)Total) * 100);
+
+    bool IsFinished => Total > 0 && Completed == Total;
+
     protected override async Task OnInitializedAsync()
     {
         Sets = await Api.GetSets(planId, day);
         await LoadProgress();
     }
 
-    async Task OnToggle(int index, bool completed)
+    async Task OnToggle(int setId, bool completed)
     {
-        Sets![index].Completed = completed;
+        var set = Sets!.First(s => s.Id == setId);
+        set.Completed = completed;
 
-        await Api.UpdateSet(planId, day, index, completed);
+        await Api.UpdateSet(setId, completed);
         await LoadProgress();
     }
 
@@ -56,5 +71,10 @@ else
         var p = await Api.GetDayProgress(planId, day);
         Completed = p.done;
         Total = p.total;
+    }
+
+    void GoBack()
+    {
+        Nav.NavigateTo($"/plan/{planId}");
     }
 }

@@ -1,19 +1,23 @@
-﻿@using HundredDays.Components
+﻿@page "/"
 @inject WorkoutApi Api
-@page "/"
+@inject NavigationManager Nav
+
+<h1 class="page-title">Workouts</h1>
+<p class="page-subtitle">Choose a 100-day challenge</p>
 
 @if (Plans == null)
 {
-    <p>Loading...</p>
+    <div class="skeleton-grid"></div>
 }
 else
 {
     <div class="grid">
         @foreach (var plan in Plans)
         {
-            <WorkoutCard Title="@plan.Name"
-                         Subtitle="@($"{plan.TargetReps} reps")"
-                         PlanId="@plan.Id" />
+            <div class="card" @onclick="() => Go(plan.Id)">
+                <h3>@plan.Name</h3>
+                <p>@plan.TargetReps reps · 100 days</p>
+            </div>
         }
     </div>
 }
@@ -24,5 +28,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         Plans = await Api.GetPlans();
+    }
+
+    void Go(int id)
+    {
+        Nav.NavigateTo($"/plan/{id}");
     }
 }
