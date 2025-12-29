@@ -12,6 +12,7 @@ builder.Services.AddScoped(sp =>
     {
         BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
     });
+
 builder.Services.AddScoped<WorkoutApi>();
 
 builder.Services.AddScoped<WorkoutApi>();

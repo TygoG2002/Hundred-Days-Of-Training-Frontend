@@ -2,8 +2,15 @@
 @using HundredDays.Components
 @using HundredDays.Services
 @inject WorkoutApi Api
+@inject NavigationManager Nav
 
-<h1>Workout plan</h1>
+<div class="page-header">
+    <button class="back-button" @onclick="GoBack">
+        ← Back
+    </button>
+
+    <h1>Workout plan</h1>
+</div>
 
 @if (Days == null)
 {
@@ -27,5 +34,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         Days = await Api.GetDays(planId);
+    }
+
+    void GoBack()
+    {
+        Nav.NavigateTo("/");
     }
 }
