@@ -3,6 +3,9 @@
 @inject NavigationManager Nav
 
 <h1 class="page-title">Day @day</h1>
+<button class="back-button" @onclick="GoBack">
+    ← Back
+</button>
 
 @if (Sets == null)
 {

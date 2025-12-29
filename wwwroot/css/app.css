@@ -221,3 +221,15 @@ button {
         transform: translateY(0);
     }
 }
+.back-button {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+    .back-button:hover {
+        text-decoration: underline;
+    }
