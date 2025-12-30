@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,19 +20,19 @@
 </head>
 
 <body>
-    <div id="loader">
-        <div class="loader">
-            <svg class="loading-ring" viewBox="0 0 100 100">
-                <circle class="ring-bg" cx="50" cy="50" r="45" />
-                <circle class="ring-progress" cx="50" cy="50" r="45" />
-            </svg>
+    <div id="app">
+        <div id="loader">
+            <div class="loader">
+                <svg class="loading-ring" viewBox="0 0 100 100">
+                    <circle class="ring-bg" cx="50" cy="50" r="45" />
+                    <circle class="ring-progress" cx="50" cy="50" r="45" />
+                </svg>
 
-            <img src="iconCali-192.png" alt="HundredDays" class="loader-icon" />
-            <div class="loading-text">Loading workout…</div>
+                <img src="iconCali-192.png" alt="HundredDays" class="loader-icon" />
+                <div class="loading-text">Loading workout…</div>
+            </div>
         </div>
     </div>
-
-    <div id="app"></div>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
@@ -41,17 +40,12 @@
         <span class="dismiss">🗙</span>
     </div>
 
-    <script src="_framework/blazor.webassembly#[.{fingerprint}].js" autostart="false"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
 
     <script>
-        Blazor.start().then(() => {
-            document.body.classList.add('blazor-loaded');
-
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });
-            }
-        });
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });
+        }
     </script>
 </body>
-
 </html>
