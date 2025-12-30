@@ -1,6 +1,7 @@
 ﻿@page "/plan/{planId:int}/day/{day:int}"
 @inject WorkoutApi Api
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 
 <h1 class="page-title">Day @day</h1>
 <button class="back-button" @onclick="GoBack">
@@ -9,7 +10,12 @@
 
 @if (Sets == null)
 {
-    <p>Loading…</p>
+    <div class="sets skeleton">
+        <div class="set skeleton-line"></div>
+        <div class="set skeleton-line"></div>
+        <div class="set skeleton-line"></div>
+        <div class="set skeleton-line"></div>
+    </div>
 }
 else
 {
@@ -18,7 +24,7 @@ else
             <div class="progress-fill"
                  style="width:@ProgressPercent%"></div>
         </div>
-        <p class="progress-text">@Completed / @Total completed</p>
+        <p class="progress-text">@FocusText</p>
     </div>
 
     <div class="sets">
@@ -39,6 +45,13 @@ else
             Finish day
         </button>
     }
+
+    @if (RestSeconds > 0)
+    {
+        <div class="rest-timer">
+            ⏱ Rest: @RestSeconds s
+        </div>
+    }
 }
 
 @code {
@@ -49,10 +62,34 @@ else
     int Completed;
     int Total;
 
+    int RestSeconds;
+    CancellationTokenSource? RestCts;
+
     int ProgressPercent =>
         Total == 0 ? 0 : (int)((Completed / (double)Total) * 100);
 
     bool IsFinished => Total > 0 && Completed == Total;
+
+    string FocusText
+    {
+        get
+        {
+            if (Total == 0)
+                return "";
+
+            if (IsFinished)
+                return "Done for today 🎉";
+
+            var remaining = Total - Completed;
+
+            return remaining switch
+            {
+                1 => "Last set 💪",
+                2 => "Almost there 👊",
+                _ => $"{remaining} sets left"
+            };
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -67,6 +104,9 @@ else
 
         await Api.UpdateSet(setId, completed);
         await LoadProgress();
+
+        if (completed)
+            await StartRestTimer();
     }
 
     async Task LoadProgress()
@@ -74,6 +114,30 @@ else
         var p = await Api.GetDayProgress(planId, day);
         Completed = p.done;
         Total = p.total;
+    }
+
+    async Task StartRestTimer()
+    {
+        RestCts?.Cancel();
+        RestCts = new();
+
+        RestSeconds = 60;
+
+        try
+        {
+            while (RestSeconds > 0)
+            {
+                await Task.Delay(1000, RestCts.Token);
+                RestSeconds--;
+                StateHasChanged();
+            }
+
+            await JS.InvokeVoidAsync("navigator.vibrate", 50);
+        }
+        catch
+        {
+            // timer cancelled
+        }
     }
 
     void GoBack()

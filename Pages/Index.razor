@@ -2,13 +2,22 @@
 @inject WorkoutApi Api
 @inject NavigationManager Nav
 
-<h1 class="page-title">Workouts Tygo</h1>
-<p class="page-subtitle">Choose a 100-day Workout</p>
+<h1 class="page-title">Your workouts</h1>
+<p class="page-subtitle">Pick up where you left off</p>
 
 @if (Plans == null)
 {
-    <div class="skeleton-grid"></div>
-    <p>No plans</p>
+    <div class="grid">
+        @for (int i = 0; i < 3; i++)
+        {
+            <div class="card skeleton-line"></div>
+
+        }
+    </div>
+}
+else if (!Plans.Any())
+{
+    <p>No workout plans yet.</p>
 }
 else
 {
@@ -17,7 +26,15 @@ else
         {
             <div class="card" @onclick="() => Go(plan.Id)">
                 <h3>@plan.Name</h3>
-                <p>@plan.TargetReps reps · 100 days</p>
+
+                <div class="plan-progress-bar">
+                    <div class="plan-progress-fill"
+                         style="width:@GetProgressPercent(plan)%">
+                    </div>
+                </div>
+
+                <p class="plan-progress">@GetProgressText(plan)</p>
+                <p class="plan-cta">Continue →</p>
             </div>
         }
     </div>
@@ -25,10 +42,61 @@ else
 
 @code {
     List<WorkoutPlanDto>? Plans;
+    Dictionary<int, (int done, int total)> PlanProgress = new();
 
     protected override async Task OnInitializedAsync()
     {
-        Plans = await Api.GetPlans();
+        try
+        {
+            Plans = await Api.GetPlans();
+
+            var planTasks = Plans.Select(async plan =>
+            {
+                var days = await Api.GetDays(plan.Id);
+
+                var progressTasks = days
+                    .Select(day => Api.GetDayProgress(plan.Id, day))
+                    .ToList();
+
+                var progressResults = await Task.WhenAll(progressTasks);
+
+                int doneDays = progressResults
+                    .Count(p => p.total > 0 && p.done == p.total);
+
+                PlanProgress[plan.Id] = (doneDays, days.Count);
+            });
+
+            await Task.WhenAll(planTasks);
+        }
+        catch
+        {
+            Plans = new();
+        }
+    }
+
+    string GetProgressText(WorkoutPlanDto plan)
+    {
+        if (!PlanProgress.TryGetValue(plan.Id, out var progress))
+            return "Loading…";
+
+        if (progress.total == 0)
+            return "Not started yet";
+
+        if (progress.done == progress.total)
+            return "Completed 🎉";
+
+        return $"{progress.done} / {progress.total} days completed";
+    }
+
+    int GetProgressPercent(WorkoutPlanDto plan)
+    {
+        if (!PlanProgress.TryGetValue(plan.Id, out var progress))
+            return 0;
+
+        if (progress.total == 0)
+            return 0;
+
+        return (int)((progress.done / (double)progress.total) * 100);
     }
 
     void Go(int id)

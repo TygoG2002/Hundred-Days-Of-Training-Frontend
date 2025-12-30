@@ -1,22 +1,48 @@
 ﻿@inject NavigationManager Nav
 @inject WorkoutApi Api
 
-<div class="card" @onclick="Go">
+<div class="card @(CardClass)"
+     @onclick="@(IsLocked ? null : Go)">
     <h3>Day @DayNumber</h3>
     <p>@ProgressText</p>
+    <p>@WorkoutSets</p>
 </div>
 
 @code {
     [Parameter] public int DayNumber { get; set; }
     [Parameter] public int PlanId { get; set; }
 
-    string ProgressText = "Not started";
+    [Parameter] public bool IsNext { get; set; }
+    [Parameter] public bool IsLocked { get; set; }
+
+    int Done;
+    int Total;
+    int WorkoutSetCount;
+
+    bool IsFinished => Total > 0 && Done == Total;
+
+    string CardClass =>
+        IsLocked ? "card-finished"
+        : IsFinished ? "card-finished"
+        : IsNext ? "card-next"
+        : "";
+
+    string ProgressText =>
+        IsFinished
+            ? "Finished"
+            : Total > 0
+                ? $"{Done} / {Total} sets"
+                : "Not started";
+
+    string WorkoutSets =>
+        !IsFinished
+            ? $"{WorkoutSetCount - Done} sets left"
+            : "";
 
     protected override async Task OnInitializedAsync()
     {
-        var (done, total) = await Api.GetDayProgress(PlanId, DayNumber);
-        if (total > 0)
-            ProgressText = $"{done} / {total} sets";
+        (Done, Total) = await Api.GetDayProgress(PlanId, DayNumber);
+        WorkoutSetCount = (await Api.GetSets(PlanId, DayNumber)).Count;
     }
 
     void Go()
