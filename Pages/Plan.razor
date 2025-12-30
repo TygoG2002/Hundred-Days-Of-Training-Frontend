@@ -16,6 +16,7 @@
     else
     {
         <h1>@CurrentPlan</h1>
+        <p>@Description</p>
     }
 </div>
 
@@ -46,7 +47,7 @@ else
 
     List<int>? Days;
     string? CurrentPlan;
-
+    string? Description;
     int? NextDay;
     HashSet<int> FinishedDays = new();
 
@@ -61,6 +62,7 @@ else
 
         CurrentPlan = plansTask.Result
             .FirstOrDefault(p => p.Id == PlanId)?.Name;
+        Description = plansTask.Result.FirstOrDefault(k => k.Id == PlanId)?.Description;
 
         var progressTasks = Days.Select(day =>
             Api.GetDayProgress(PlanId, day)
