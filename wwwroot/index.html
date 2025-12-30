@@ -19,11 +19,17 @@
 
 <body>
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div id="loader">
+        <div class="loader">
+            <svg class="loading-ring" viewBox="0 0 100 100">
+                <circle class="ring-bg" cx="50" cy="50" r="45" />
+                <circle class="ring-progress" cx="50" cy="50" r="45" />
+            </svg>
+
+            <img src="iconCali-192.png" alt="HundredDays" class="loader-icon" />
+            <div class="loading-text">Welcome</div>
+        </div>
+            </div>
     </div>
 
     <div id="blazor-error-ui">
