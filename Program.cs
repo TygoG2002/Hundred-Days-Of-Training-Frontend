@@ -4,16 +4,26 @@ using HundredDays;
 using HundredDays.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+
+Uri apiBaseUri;
+
+if (builder.HostEnvironment.IsDevelopment())
+{
+    apiBaseUri = new Uri("http://localhost:5254/");
+}
+else
+{
+    apiBaseUri = new Uri(builder.HostEnvironment.BaseAddress);
+}
 
 builder.Services.AddScoped(sp =>
     new HttpClient
     {
-        BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+        BaseAddress = apiBaseUri
     });
-
-builder.Services.AddScoped<WorkoutApi>();
 
 builder.Services.AddScoped<WorkoutApi>();
 
