@@ -97,16 +97,24 @@ else
         await LoadProgress();
     }
 
+    
+
     async Task OnToggle(int setId, bool completed)
     {
         var set = Sets!.First(s => s.Id == setId);
-        set.Completed = completed;
 
-        await Api.UpdateSet(setId, completed, planId, day);
+        if (set.Completed == completed)
+            return;
+
+        set.Completed = completed;
+        Completed += completed ? 1 : -1;
+
+        _ = Api.UpdateSet(setId, completed, planId, day);
 
         if (completed)
             await StartRestTimer();
     }
+
 
 
     async Task LoadProgress()
