@@ -11,7 +11,6 @@
         @for (int i = 0; i < 3; i++)
         {
             <div class="card skeleton-line"></div>
-
         }
     </div>
 }
@@ -33,7 +32,10 @@ else
                     </div>
                 </div>
 
-                <p class="plan-progress">@GetProgressText(plan)</p>
+                <p class="plan-progress">
+                    @GetProgressText(plan)
+                </p>
+
                 <p class="plan-cta">Continue →</p>
             </div>
         }
@@ -41,32 +43,13 @@ else
 }
 
 @code {
-    List<WorkoutPlanDto>? Plans;
-    Dictionary<int, (int done, int total)> PlanProgress = new();
+    List<PlanOverviewDto>? Plans;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            Plans = await Api.GetPlans();
-
-            var planTasks = Plans.Select(async plan =>
-            {
-                var days = await Api.GetDays(plan.Id);
-
-                var progressTasks = days
-                    .Select(day => Api.GetDayProgress(plan.Id, day))
-                    .ToList();
-
-                var progressResults = await Task.WhenAll(progressTasks);
-
-                int doneDays = progressResults
-                    .Count(p => p.total > 0 && p.done == p.total);
-
-                PlanProgress[plan.Id] = (doneDays, days.Count);
-            });
-
-            await Task.WhenAll(planTasks);
+            Plans = await Api.GetPlansOverview();
         }
         catch
         {
@@ -74,29 +57,23 @@ else
         }
     }
 
-    string GetProgressText(WorkoutPlanDto plan)
+    string GetProgressText(PlanOverviewDto plan)
     {
-        if (!PlanProgress.TryGetValue(plan.Id, out var progress))
-            return "Loading…";
-
-        if (progress.total == 0)
+        if (plan.TotalDays == 0)
             return "Not started yet";
 
-        if (progress.done == progress.total)
+        if (plan.CompletedDays == plan.TotalDays)
             return "Completed 🎉";
 
-        return $"{progress.done} / {progress.total} days completed";
+        return $"{plan.CompletedDays} / {plan.TotalDays} days completed";
     }
 
-    int GetProgressPercent(WorkoutPlanDto plan)
+    int GetProgressPercent(PlanOverviewDto plan)
     {
-        if (!PlanProgress.TryGetValue(plan.Id, out var progress))
+        if (plan.TotalDays == 0)
             return 0;
 
-        if (progress.total == 0)
-            return 0;
-
-        return (int)((progress.done / (double)progress.total) * 100);
+        return (int)((plan.CompletedDays / (double)plan.TotalDays) * 100);
     }
 
     void Go(int id)

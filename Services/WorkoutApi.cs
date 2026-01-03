@@ -41,6 +41,12 @@ public class WorkoutApi
             $"api/plans/sets/{setId}",
             completed);
     }
+    public async Task<List<PlanOverviewDto>> GetPlansOverview()
+    {
+        return await _http.GetFromJsonAsync<List<PlanOverviewDto>>(
+            "api/plans/overview")
+            ?? new();
+    }
 
 
 
