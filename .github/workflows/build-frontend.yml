@@ -2,8 +2,7 @@ name: Build Frontend
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -12,16 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      - name: Publish Blazor WASM
-        run: |
-          dotnet publish ./HundredDays.csproj -c Release -o ./out
+      - name: Publish WASM
+        run: dotnet publish HundredDays.csproj -c Release -o publish
 
-      - name: Upload frontend artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: hundreddays-frontend
-          path: out/wwwroot
+          path: publish/wwwroot
