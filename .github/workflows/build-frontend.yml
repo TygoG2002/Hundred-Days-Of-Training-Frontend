@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -18,19 +19,28 @@ jobs:
 
       - name: Publish Blazor WASM
         run: |
-          dotnet publish HundredDays.csproj -c Release -o publish
+          dotnet publish \
+            HundredDays.csproj \
+            -c Release \
+            -o publish
 
       - name: Fix Blazor runtime filenames
         run: |
           cd publish/wwwroot/_framework
 
-          DOTNET_FILE=$(ls dotnet.*.js | grep -v 'dotnet.js' | head -n 1 | sed 's/\.js//')
+          # ---- dotnet.js alias ----
+          DOTNET=$(ls dotnet.*.js | grep -v 'dotnet.js' | head -n 1 | sed 's/\.js//')
+          cp "$DOTNET.js" dotnet.js
+          cp "$DOTNET.js.br" dotnet.js.br || true
+          cp "$DOTNET.js.gz" dotnet.js.gz || true
 
-          cp "$DOTNET_FILE.js" dotnet.js
-          cp "$DOTNET_FILE.js.br" dotnet.js.br || true
-          cp "$DOTNET_FILE.js.gz" dotnet.js.gz || true
+          # ---- blazor.webassembly.js alias ----
+          BLAZOR=$(ls blazor.webassembly.*.js | grep -v 'blazor.webassembly.js' | head -n 1 | sed 's/\.js//')
+          cp "$BLAZOR.js" blazor.webassembly.js
+          cp "$BLAZOR.js.br" blazor.webassembly.js.br || true
+          cp "$BLAZOR.js.gz" blazor.webassembly.js.gz || true
 
-      - name: Upload artifact
+      - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
           name: hundreddays-frontend
