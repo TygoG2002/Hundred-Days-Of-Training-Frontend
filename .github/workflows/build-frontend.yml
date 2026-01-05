@@ -17,7 +17,11 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Publish Blazor WASM
-        run: dotnet publish -c Release -o publish
+        run: |
+          dotnet publish \
+            HundredDays.csproj \
+            -c Release \
+            -o publish
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
