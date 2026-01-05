@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HundredDays</title>
     <base href="/" />
-    <link rel="preload" id="webassembly" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" href="favicon.ico">
@@ -20,16 +19,16 @@
 <body>
     <div id="app">
         <div id="loader">
-        <div class="loader">
-            <svg class="loading-ring" viewBox="0 0 100 100">
-                <circle class="ring-bg" cx="50" cy="50" r="45" />
-                <circle class="ring-progress" cx="50" cy="50" r="45" />
-            </svg>
+            <div class="loader">
+                <svg class="loading-ring" viewBox="0 0 100 100">
+                    <circle class="ring-bg" cx="50" cy="50" r="45" />
+                    <circle class="ring-progress" cx="50" cy="50" r="45" />
+                </svg>
 
-            <img src="iconCali-192.png" alt="HundredDays" class="loader-icon" />
-            <div class="loading-text">Welcome Tygo</div>
-        </div>
+                <img src="iconCali-192.png" alt="HundredDays" class="loader-icon" />
+                <div class="loading-text">Welcome Tygo</div>
             </div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">
@@ -37,7 +36,7 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
-    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });</script>
 </body>
 
