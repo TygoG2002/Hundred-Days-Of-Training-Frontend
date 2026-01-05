@@ -1,28 +1,9 @@
-name: Build Frontend
+- name: Publish Blazor WASM
+  run: |
+    dotnet publish HundredDays.csproj -c Release -o publish
 
-on:
-  push:
-    branches: [ "main" ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-
-      - name: Publish Blazor WASM
-        run: |
-          dotnet publish HundredDays.csproj -c Release -o publish
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: hundreddays-frontend
-          path: publish/wwwroot
+- name: Upload artifact
+  uses: actions/upload-artifact@v4
+  with:
+    name: hundreddays-frontend
+    path: publish/wwwroot
