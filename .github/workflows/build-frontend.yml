@@ -10,19 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
       - name: Publish Blazor WASM
-        run: dotnet publish HundredDays.csproj -c Release -o publish
+        run: |
+          dotnet publish ./HundredDays.csproj -c Release -o ./out
 
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
           name: hundreddays-frontend
-          path: publish/wwwroot
+          path: out/wwwroot
