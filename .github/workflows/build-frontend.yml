@@ -19,11 +19,10 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Publish Blazor WASM
-        working-directory: Hundred-Days-Of-Training-Frontend
         run: dotnet publish HundredDays.csproj -c Release -o publish
 
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
           name: hundreddays-frontend
-          path: Hundred-Days-Of-Training-Frontend/publish/wwwroot
+          path: publish/wwwroot
