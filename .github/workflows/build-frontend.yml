@@ -21,9 +21,6 @@ jobs:
         run: |
           dotnet publish HundredDays.csproj -c Release -o publish
 
-          cd publish/wwwroot/_framework
-          cp blazor.webassembly.*.js blazor.webassembly.js
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
