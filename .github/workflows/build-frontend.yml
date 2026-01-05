@@ -18,10 +18,17 @@ jobs:
 
       - name: Publish Blazor WASM
         run: |
-          dotnet publish \
-            HundredDays.csproj \
-            -c Release \
-            -o publish
+          dotnet publish HundredDays.csproj -c Release -o publish
+
+      - name: Fix Blazor runtime filenames
+        run: |
+          cd publish/wwwroot/_framework
+
+          DOTNET_FILE=$(ls dotnet.*.js | grep -v 'dotnet.js' | head -n 1 | sed 's/\.js//')
+
+          cp "$DOTNET_FILE.js" dotnet.js
+          cp "$DOTNET_FILE.js.br" dotnet.js.br || true
+          cp "$DOTNET_FILE.js.gz" dotnet.js.gz || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
