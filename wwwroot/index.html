@@ -3,20 +3,23 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>HundredDays</title>
+
     <base href="/" />
 
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
-    <link rel="icon" href="favicon.png" />
-    <link href="HundredDays.styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="HundredDays.styles.css" />
 
+    <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" sizes="192x192" href="iconCali-192.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="iconCali-512.png" />
 </head>
 
 <body>
+
     <div id="app">
         <div id="loader">
             <div class="loader">
@@ -33,49 +36,11 @@
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
-        <a href="">Reload</a>
-        <span class="dismiss">🗙</span>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
     </div>
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>HundredDays</title>
-        <base href="/" />
+    <script src="_framework/blazor.webassembly.js"></script>
 
-        <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="css/app.css" />
-        <link rel="icon" href="favicon.ico" />
-        <link href="HundredDays.styles.css" rel="stylesheet" />
-
-        <link rel="manifest" href="manifest.webmanifest" />
-        <link rel="apple-touch-icon" sizes="192x192" href="iconCali-192.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="iconCali-512.png" />
-    </head>
-
-    <body>
-        <div id="app">
-            <div id="loader">
-                <div class="loader">
-                    <svg class="loading-ring" viewBox="0 0 100 100">
-                        <circle class="ring-bg" cx="50" cy="50" r="45" />
-                        <circle class="ring-progress" cx="50" cy="50" r="45" />
-                    </svg>
-
-                    <img src="iconCali-192.png" alt="HundredDays" class="loader-icon" />
-                    <div class="loading-text">Welcome</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="blazor-error-ui">
-            An unhandled error has occurred.
-            <a href="">Reload</a>
-            <span class="dismiss">🗙</span>
-        </div>
-    </body>
-</html>
 </body>
 </html>
