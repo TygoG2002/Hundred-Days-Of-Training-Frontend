@@ -16,8 +16,11 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Publish WASM (no compression)
-        run: dotnet publish HundredDays.csproj -c Release -o publish /p:BlazorEnableCompression=false
+      - name: Clean
+        run: dotnet clean HundredDays.csproj
+
+      - name: Publish WASM
+        run: dotnet publish HundredDays.csproj -c Release -o publish
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
