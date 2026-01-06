@@ -7,9 +7,9 @@ public class WorkoutApi
 {
     private readonly HttpClient _http;
 
-    //caches - after api gets data 1 time it saves here for future uses to limit api calls 
     private List<WorkoutPlanDto>? _plansCache;
     private List<PlanOverviewDto>? _plansOverviewCache;
+
     private readonly Dictionary<int, List<int>> _daysCache = new();
     private readonly Dictionary<(int planId, int day), List<WorkoutSetDto>> _setsCache = new();
     private readonly Dictionary<(int planId, int day), (int done, int total)> _dayProgressCache = new();
@@ -18,13 +18,31 @@ public class WorkoutApi
     {
         _http = http;
     }
+
+    private async Task<T?> SafeGet<T>(string url)
+    {
+        try
+        {
+            using var response = await _http.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+                return default;
+
+            return await response.Content.ReadFromJsonAsync<T>();
+        }
+        catch
+        {
+            return default;
+        }
+    }
+
     public async Task<List<WorkoutPlanDto>> GetPlans()
     {
         if (_plansCache != null)
             return _plansCache;
 
         _plansCache =
-            await _http.GetFromJsonAsync<List<WorkoutPlanDto>>("api/plans")
+            await SafeGet<List<WorkoutPlanDto>>("api/plans")
             ?? new();
 
         return _plansCache;
@@ -36,7 +54,7 @@ public class WorkoutApi
             return _plansOverviewCache;
 
         _plansOverviewCache =
-            await _http.GetFromJsonAsync<List<PlanOverviewDto>>("api/plans/overview")
+            await SafeGet<List<PlanOverviewDto>>("api/plans/overview")
             ?? new();
 
         return _plansOverviewCache;
@@ -48,7 +66,7 @@ public class WorkoutApi
             return cached;
 
         var days =
-            await _http.GetFromJsonAsync<List<int>>($"api/plans/{planId}/days")
+            await SafeGet<List<int>>($"api/plans/{planId}/days")
             ?? new();
 
         _daysCache[planId] = days;
@@ -63,22 +81,12 @@ public class WorkoutApi
             return cached;
 
         var sets =
-            await _http.GetFromJsonAsync<List<WorkoutSetDto>>(
+            await SafeGet<List<WorkoutSetDto>>(
                 $"api/plans/{planId}/days/{day}/sets")
             ?? new();
 
         _setsCache[key] = sets;
         return sets;
-    }
-
-    public async Task UpdateSet(int setId, bool completed, int planId, int day)
-    {
-        await _http.PostAsJsonAsync(
-            $"api/plans/sets/{setId}",
-            completed);
-        _setsCache.Remove((planId, day));
-        _dayProgressCache.Remove((planId, day));
-        _plansOverviewCache = null;
     }
 
     public async Task<(int done, int total)> GetDayProgress(int planId, int day)
@@ -89,33 +97,44 @@ public class WorkoutApi
             return cached;
 
         var result =
-            await _http.GetFromJsonAsync<DayProgressDto>(
+            await SafeGet<DayProgressDto>(
                 $"api/plans/{planId}/days/{day}/progress");
 
-        var progress = (result!.Done, result.Total);
+        if (result == null)
+            return (0, 0);
+
+        var progress = (result.Done, result.Total);
         _dayProgressCache[key] = progress;
 
         return progress;
     }
 
+    public async Task UpdateSet(int setId, bool completed, int planId, int day)
+    {
+        try
+        {
+            await _http.PostAsJsonAsync(
+                $"api/plans/sets/{setId}",
+                completed);
+        }
+        catch
+        {
+        }
+
+        _setsCache.Remove((planId, day));
+        _dayProgressCache.Remove((planId, day));
+        _plansOverviewCache = null;
+    }
 
     public void InvalidatePlan(int planId)
     {
         _daysCache.Remove(planId);
 
-        foreach (var key in _setsCache.Keys
-                     .Where(k => k.planId == planId)
-                     .ToList())
-        {
+        foreach (var key in _setsCache.Keys.Where(k => k.planId == planId).ToList())
             _setsCache.Remove(key);
-        }
 
-        foreach (var key in _dayProgressCache.Keys
-                     .Where(k => k.planId == planId)
-                     .ToList())
-        {
+        foreach (var key in _dayProgressCache.Keys.Where(k => k.planId == planId).ToList())
             _dayProgressCache.Remove(key);
-        }
 
         _plansOverviewCache = null;
     }
