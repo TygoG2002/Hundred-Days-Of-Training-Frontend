@@ -11,16 +11,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
-      - name: Publish WASM (no compression)
-        run: dotnet publish HundredDays.csproj -c Release -o publish /p:BlazorEnableCompression=false
+      - name: Verify project exists
+        run: ls
+
+      - name: Publish Blazor WASM
+        run: dotnet publish ./HundredDays.csproj -c Release
+
+      - name: Verify publish output
+        run: |
+          grep blazor.webassembly bin/Release/net10.0/publish/wwwroot/index.html
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: hundreddays-frontend
-          path: publish/wwwroot
+          path: bin/Release/net10.0/publish/wwwroot
