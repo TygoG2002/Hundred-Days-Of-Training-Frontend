@@ -187,13 +187,14 @@ nav {
 
 /* BOTTOM NAV */
 
+
 .bottom-nav {
     pointer-events: auto;
     position: fixed;
     left: 0;
     right: 0;
-    bottom: env(safe-area-inset-bottom);
-    height: 64px;
+    bottom: 0;
+    height: 84px;
     background: #2f2f2f;
     display: flex;
     justify-content: space-around;
@@ -201,16 +202,6 @@ nav {
     z-index: 100;
     border-top: 1px solid rgba(255,255,255,0.05);
 }
-    .bottom-nav::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: calc(-1 * env(safe-area-inset-bottom));
-        height: env(safe-area-inset-bottom);
-        background: #2f2f2f;
-    }
-
 
     .bottom-nav a {
         position: relative;
