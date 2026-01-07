@@ -1,0 +1,84 @@
+﻿@page "/plans"
+@inject WorkoutApi Api
+@inject NavigationManager Nav
+
+<h1 class="page-title">Your workouts</h1>
+<p class="page-subtitle">Pick up where you left off</p>
+
+
+@if (Plans == null)
+{
+    <div class="grid">
+        @for (int i = 0; i < 3; i++)
+        {
+            <div class="card skeleton-line"></div>
+        }
+    </div>
+}
+else if (!Plans.Any())
+{
+    <p>No workout plans yet.</p>
+}
+else
+{
+    <div class="grid">
+        @foreach (var plan in Plans)
+        {
+            <div class="card" @onclick="() => Go(plan.Id)">
+                <h3>@plan.Name</h3>
+
+                <div class="plan-progress-bar">
+                    <div class="plan-progress-fill"
+                         style="width:@GetProgressPercent(plan)%">
+                    </div>
+                </div>
+
+                <p class="plan-progress">
+                    @GetProgressText(plan)
+                </p>
+
+                <p class="plan-cta">Continue →</p>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    List<PlanOverviewDto>? Plans;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Plans = await Api.GetPlansOverview();
+        }
+        catch
+        {
+            Plans = new();
+        }
+    }
+
+    string GetProgressText(PlanOverviewDto plan)
+    {
+        if (plan.TotalDays == 0)
+            return "Not started yet";
+
+        if (plan.CompletedDays == plan.TotalDays)
+            return "Completed 🎉";
+
+        return $"{plan.CompletedDays} / {plan.TotalDays} days completed";
+    }
+
+    int GetProgressPercent(PlanOverviewDto plan)
+    {
+        if (plan.TotalDays == 0)
+            return 0;
+
+        return (int)((plan.CompletedDays / (double)plan.TotalDays) * 100);
+    }
+
+    void Go(int id)
+    {
+        Nav.NavigateTo($"/plan/{id}");
+    }
+}

@@ -1,34 +1,24 @@
 ﻿<nav>
-    <!-- Desktop sidebar -->
     <div class="sidebar-nav">
+        <div class="sidebar-logo">
+            <img src="iconCali-192.png" alt="HundredDays" />
+        </div>
+
         <NavLink href="/" Match="NavLinkMatch.All">
-            <span>🏠</span>
-            <span>Home</span>
+            <span>Dashboard</span>
         </NavLink>
 
         <NavLink href="/plans">
-            <span>💪</span>
             <span>Workouts</span>
-        </NavLink>
-
-        <NavLink href="/progress">
-            <span>📊</span>
-            <span>Progress</span>
         </NavLink>
     </div>
 
-    <!-- Mobile bottom bar -->
     <div class="bottom-nav">
         <NavLink href="/" Match="NavLinkMatch.All">
-            <span>🏠</span>
+            <img src="home.svg" alt="Dashboard" />
         </NavLink>
-
         <NavLink href="/plans">
-            <span>💪</span>
-        </NavLink>
-
-        <NavLink href="/progress">
-            <span>📊</span>
+            <img src="workouts.svg" alt="Workouts" />
         </NavLink>
     </div>
 </nav>
