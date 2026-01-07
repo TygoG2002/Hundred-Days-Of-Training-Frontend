@@ -194,7 +194,8 @@ nav {
     left: 0;
     right: 0;
     bottom: 0;
-    height: 84px;
+    height: 56px;
+    padding-bottom: env(safe-area-inset-bottom);
     background: #2f2f2f;
     display: flex;
     justify-content: space-around;
@@ -203,64 +204,53 @@ nav {
     border-top: 1px solid rgba(255,255,255,0.05);
 }
 
-    .bottom-nav a {
-        position: relative;
-        width: 56px;
-        height: 56px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        outline: none;
-        box-shadow: none;
-        -webkit-tap-highlight-color: transparent;
-    }
+.main-content {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
+}
 
-        .bottom-nav a:focus,
-        .bottom-nav a:focus-visible,
-        .bottom-nav a:active {
-            outline: none;
-            box-shadow: none;
-        }
+/* Nav items */
+.bottom-nav a {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    box-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+}
 
+/* Icons */
+.bottom-nav img {
+    width: 24px;
+    height: 24px;
+    opacity: 0.4;
+    transition: opacity 0.15s ease, transform 0.2s cubic-bezier(.34,1.56,.64,1);
+}
 
-    /* ICONS */
+/* Active icon */
+.bottom-nav a.active img {
+    opacity: 1;
+    transform: scale(1.05);
+}
 
-    .bottom-nav img {
-        width: 32px;
-        height: 32px;
-        opacity: 0.35;
-        filter: grayscale(1);
-        transition: opacity 0.15s ease, filter 0.15s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
-    }
+/* Active indicator */
+.bottom-nav a.active::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    width: 18px;
+    height: 3px;
+    border-radius: 999px;
+    background: #ff9800;
+}
 
+/* Press feedback */
+.bottom-nav a:active img {
+    transform: scale(0.92);
+}
 
-    /* ACTIVE ICON */
-
-    .bottom-nav a.active img {
-        opacity: 1;
-        filter: none;
-        transform: scale(1.15);
-    }
-
-
-    /* ACTIVE INDICATOR (A) */
-
-    .bottom-nav a.active::after {
-        content: "";
-        position: absolute;
-        bottom: 6px;
-        width: 20px;
-        height: 3px;
-        border-radius: 999px;
-        background: #ff9800;
-    }
-
-
-    /* PRESS FEEDBACK */
-
-    .bottom-nav a:active img {
-        transform: scale(0.9);
-    }
 
 
 /* RESPONSIVE */
