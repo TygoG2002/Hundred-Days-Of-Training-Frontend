@@ -3,10 +3,11 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
-<h1 class="page-title">Day @day</h1>
 <button class="back-button" @onclick="GoBack">
     ← Back
 </button>
+<h1 class="page-title">Day @day</h1>
+
 
 @if (Sets == null)
 {

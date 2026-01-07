@@ -12,6 +12,9 @@
     }
     else
     {
+        <button class="back-button" @onclick="GoBack">
+            ← Back
+        </button>
         <h1>@CurrentPlan</h1>
         <p>@Description</p>
     }
@@ -90,6 +93,6 @@ else
 
     void GoBack()
     {
-        Nav.NavigateTo("/");
+        Nav.NavigateTo("/plans");
     }
 }
