@@ -194,7 +194,7 @@ nav {
     left: 0;
     right: 0;
     bottom: 0;
-    height: 56px;
+    height: 66px;
     padding-bottom: env(safe-area-inset-bottom);
     background: #2f2f2f;
     display: flex;
@@ -212,7 +212,8 @@ nav {
 .bottom-nav a {
     position: relative;
     width: 48px;
-    height: 58px;
+    height: 48px;
+    bottom:10px;
     display: flex;
     align-items: center;
     justify-content: center;
