@@ -66,7 +66,7 @@ public class WorkoutApi
             return cached;
 
         var days =
-            await SafeGet<List<int>>($"api/plans/{planId}/days")
+            await SafeGet<List<int>>($"api/days/{planId}/days")
             ?? new();
 
         _daysCache[planId] = days;
@@ -82,7 +82,7 @@ public class WorkoutApi
 
         var sets =
             await SafeGet<List<WorkoutSetDto>>(
-                $"api/plans/{planId}/days/{day}/sets")
+                $"api/sets/{planId}/days/{day}/sets")
             ?? new();
 
         _setsCache[key] = sets;
@@ -98,7 +98,7 @@ public class WorkoutApi
 
         var result =
             await SafeGet<DayProgressDto>(
-                $"api/plans/{planId}/days/{day}/progress");
+                $"api/days/{planId}/days/{day}/progress");
 
         if (result == null)
             return (0, 0);
@@ -114,7 +114,7 @@ public class WorkoutApi
         try
         {
             await _http.PostAsJsonAsync(
-                $"api/plans/sets/{setId}",
+                $"api/sets/sets/{setId}",
                 completed);
         }
         catch
