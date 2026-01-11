@@ -96,6 +96,8 @@
         var completedDays =
             TodayWorkouts!.First(p => p.Id == id).CompletedDays;
 
-        Nav.NavigateTo($"/plan/{id}?completed={completedDays}");
+        Nav.NavigateTo(
+        $"/plan/{id}/day/{completedDays+1}?completed={completedDays}");
+
     }
 }

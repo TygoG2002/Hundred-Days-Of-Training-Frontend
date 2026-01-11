@@ -4,7 +4,7 @@
 @inject IJSRuntime JS
 
 <button class="back-button" @onclick="GoBack">
-    ← Back
+    ← Back to Dashboard
 </button>
 
 <h1 class="page-title">Day @day</h1>
@@ -173,7 +173,7 @@ else
 
     void GoBack()
     {
-        Nav.NavigateTo($"/plan/{planId}?completed={completed}");
+        Nav.NavigateTo($"/");
     }
 
     async Task FinishDay()
