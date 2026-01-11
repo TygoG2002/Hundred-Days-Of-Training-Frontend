@@ -131,13 +131,17 @@
     {
         get
         {
-            return (DateTime.Today.DayOfYear % 5) switch
+            return (DateTime.Today.DayOfYear % 8) switch
             {
                 0 => "Oxygen Debt",
                 1 => "Quads of Stone",
                 2 => "Hang or Fall",
                 3 => "Still in the Fire",
-                _ => "Earn the Exit"
+                4 => "Earn the Exit",
+                5 => "No Dopamine Until Earned",
+                6 => "Cold Exposure",
+                7 => "Read Without Escape",
+                _ => "Discipline"
             };
         }
     }
@@ -146,16 +150,21 @@
     {
         get
         {
-            return (DateTime.Today.DayOfYear % 5) switch
+            return (DateTime.Today.DayOfYear % 8) switch
             {
                 0 => "100 push-ups. Nasal breathing only. Mouth breathing = restart set.",
-                1 => "Wall sit 5 minutes total. Every stand-up adds 20 squats.",
+                1 => "Wall sit 1 minute total. Every stand-up adds 20 squats.",
                 2 => "Dead hang 2 minutes total. Drop = 20 push-ups. No straps.",
-                3 => "Deep squat hold 10 minutes. Heels down. No movement. No distractions.",
-                _ => "10 rounds: 10 burpees, 10 push-ups, 10 squats. No rest."
+                3 => "Deep squat hold 2 minutes. Heels down. No movement. No distractions.",
+                4 => "10 rounds: 10 burpees, 10 push-ups, 10 squats. No rest.",
+                5 => "First 4 hours of the day: no phone scrolling, no sugar, no entertainment.",
+                6 => "Cold shower 3 minutes. No warm finish.",
+                7 => "Read 10 pages of a difficult book. No music. No phone.",
+                _ => "Do something hard."
             };
         }
     }
+
 
 
 
