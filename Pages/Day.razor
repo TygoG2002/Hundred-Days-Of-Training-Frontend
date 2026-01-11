@@ -54,8 +54,17 @@ else
 
     @if (IsFinished)
     {
-        <button class="finish-button" @onclick="FinishDay">
-            Finish day
+        <button class="finish-button"
+                disabled="@IsFinishing"
+                @onclick="FinishDay">
+            @if (IsFinishing)
+            {
+                <span>Finishing…</span>
+            }
+            else
+            {
+                <span>Finish day</span>
+            }
         </button>
     }
 }
@@ -80,7 +89,9 @@ else
     bool HasError = false;
 
     bool ShowRest = false;
-    int RestKey = 0; // 👈 forces RestTimer recreation
+    int RestKey = 0;
+
+    bool IsFinishing = false; // 👈 NEW
 
     int TotalReps => Sets?.Sum(s => s.Reps) ?? 0;
     int DoneReps => Sets?.Where(s => s.Completed).Sum(s => s.Reps) ?? 0;
@@ -125,7 +136,6 @@ else
 
             Sets = await Api.GetSets(planId, day);
 
-            // Always start fresh for the day
             foreach (var set in Sets)
                 set.Completed = false;
         }
@@ -151,7 +161,7 @@ else
 
         if (completed && !IsFinished)
         {
-            RestKey++;      // 👈 NEW INSTANCE
+            RestKey++;
             ShowRest = true;
         }
     }
@@ -170,10 +180,22 @@ else
 
     async Task FinishDay()
     {
-        await Api.CompleteDay(planId, day, true);
-        Api.InvalidatePlan(planId);
+        if (IsFinishing)
+            return;
 
-        Nav.NavigateTo(
-            $"/plan/{planId}?completed={completed + 1}");
+        try
+        {
+            IsFinishing = true;
+
+            await Api.CompleteDay(planId, day, true);
+            Api.InvalidatePlan(planId);
+
+            Nav.NavigateTo(
+                $"/plan/{planId}?completed={completed + 1}");
+        }
+        finally
+        {
+            IsFinishing = false;
+        }
     }
 }
