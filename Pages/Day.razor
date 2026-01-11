@@ -62,8 +62,9 @@ else
 
 @if (ShowRest)
 {
-    <RestTImer Duration="60"
-               OnFinished="@OnRestFinished" />
+    <RestTImer @key="RestKey"
+               Duration="60"
+               OnFinished="OnRestFinished" />
 }
 
 @code {
@@ -77,7 +78,9 @@ else
 
     bool IsLoading = true;
     bool HasError = false;
+
     bool ShowRest = false;
+    int RestKey = 0; // 👈 forces RestTimer recreation
 
     int TotalReps => Sets?.Sum(s => s.Reps) ?? 0;
     int DoneReps => Sets?.Where(s => s.Completed).Sum(s => s.Reps) ?? 0;
@@ -97,7 +100,7 @@ else
 
             if (IsFinished)
                 return "Done for today 🎉";
-                
+
             var remaining = TotalReps - DoneReps;
 
             return remaining switch
@@ -122,6 +125,7 @@ else
 
             Sets = await Api.GetSets(planId, day);
 
+            // Always start fresh for the day
             foreach (var set in Sets)
                 set.Completed = false;
         }
@@ -145,8 +149,11 @@ else
     {
         set.Completed = completed;
 
-        if (completed)
+        if (completed && !IsFinished)
+        {
+            RestKey++;      // 👈 NEW INSTANCE
             ShowRest = true;
+        }
     }
 
     Task OnRestFinished()
