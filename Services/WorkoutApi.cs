@@ -16,21 +16,18 @@ public class WorkoutApi
         _http = http;
     }
 
-    private async Task<T?> SafeGet<T>(string url)
+    private async Task<T> SafeGet<T>(string url)
     {
-        try
-        {
-            using var response = await _http.GetAsync(url);
+        using var response = await _http.GetAsync(url);
 
-            if (!response.IsSuccessStatusCode)
-                return default;
+        response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<T>();
-        }
-        catch
-        {
-            return default;
-        }
+        var result = await response.Content.ReadFromJsonAsync<T>();
+
+        if (result == null)
+            throw new Exception($"Empty response from {url}");
+
+        return result;
     }
 
     /* PLANS */
@@ -40,10 +37,7 @@ public class WorkoutApi
         if (_plansCache != null)
             return _plansCache;
 
-        _plansCache =
-            await SafeGet<List<WorkoutPlanDto>>("api/plans")
-            ?? new();
-
+        _plansCache = await SafeGet<List<WorkoutPlanDto>>("api/plans");
         return _plansCache;
     }
 
@@ -53,8 +47,7 @@ public class WorkoutApi
             return _plansOverviewCache;
 
         _plansOverviewCache =
-            await SafeGet<List<PlanOverviewDto>>("api/plans/overview")
-            ?? new();
+            await SafeGet<List<PlanOverviewDto>>("api/plans/overview");
 
         return _plansOverviewCache;
     }
@@ -68,8 +61,7 @@ public class WorkoutApi
 
         var days =
             await SafeGet<List<DayOverviewDto>>(
-                $"api/days/{planId}/days")
-            ?? new();
+                $"api/days/{planId}/days");
 
         _daysCache[planId] = days;
         return days;
@@ -80,25 +72,21 @@ public class WorkoutApi
     public async Task<List<WorkoutSetDto>> GetSets(int planId, int day)
     {
         return await SafeGet<List<WorkoutSetDto>>(
-            $"api/sets/{planId}/days/{day}/sets")
-            ?? new();
+            $"api/sets/{planId}/days/{day}/sets");
     }
 
     /* COMPLETE DAY */
 
     public async Task CompleteDay(int planId, int dayId, bool completed)
     {
-        await _http.PostAsJsonAsync(
+        var response = await _http.PostAsJsonAsync(
             "api/days/completed",
-            new
-            {
-                planId,
-                dayId,
-                completed = completed
-            });
+            new { planId, dayId, completed });
+
+        response.EnsureSuccessStatusCode();
     }
 
-    /* CACHE INVALIDATION  */
+    /* CACHE INVALIDATION */
 
     public void InvalidatePlan(int planId)
     {
