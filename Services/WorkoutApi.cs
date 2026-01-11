@@ -86,6 +86,15 @@ public class WorkoutApi
         response.EnsureSuccessStatusCode();
     }
 
+    /* DASHBOARD */
+
+    public async Task<List<PlanOverviewDto>> GetTodayWorkouts()
+    {
+        return await SafeGet<List<PlanOverviewDto>>(
+            "api/dashboard/today");
+    }
+    
+
     /* CACHE INVALIDATION */
 
     public void InvalidatePlan(int planId)

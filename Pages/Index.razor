@@ -3,3 +3,99 @@
 @inject NavigationManager Nav
 
 <h1 class="page-title">Dashboard</h1>
+<p class="page-subtitle">Your focus for today</p>
+
+<section class="dashboard-section">
+    <h3 class="section-title">Still to do today</h3>
+
+    @if (IsLoading)
+    {
+        <div class="grid">
+            <div class="card skeleton-line"></div>
+            <div class="card skeleton-line"></div>
+        </div>
+    }
+    else if (HasError)
+    {
+        <div class="error-state">
+            <h3>Something went wrong</h3>
+            <p>We couldn’t load today’s workouts.</p>
+
+            <button class="finish-button" @onclick="Retry">
+                Retry
+            </button>
+        </div>
+    }
+    else if (!TodayWorkouts!.Any())
+    {
+        <div class="empty-state">
+            <p>🎉 You’re all done for today.</p>
+            <p class="muted">Come back tomorrow.</p>
+        </div>
+    }
+    else
+    {
+        <div class="grid">
+            @foreach (var workout in TodayWorkouts!)
+            {
+                <div class="card card-today" @onclick="() => Go(workout.Id)">
+                    <div class="card-header">
+                        <h3>@workout.Name</h3>
+                        <span class="badge">Today</span>
+                    </div>
+
+                    <p class="card-meta">
+                        Day @(workout.CompletedDays + 1) of @workout.TotalDays
+                    </p>
+
+                    <p class="plan-cta">Start workout →</p>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+@code {
+    List<PlanOverviewDto>? TodayWorkouts;
+
+    bool IsLoading = true;
+    bool HasError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    async Task Load()
+    {
+        try
+        {
+            IsLoading = true;
+            HasError = false;
+
+            TodayWorkouts = await Api.GetTodayWorkouts();
+        }
+        catch
+        {
+            HasError = true;
+            TodayWorkouts = new();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    async Task Retry()
+    {
+        await Load();
+    }
+
+    void Go(int id)
+    {
+        var completedDays =
+            TodayWorkouts!.First(p => p.Id == id).CompletedDays;
+
+        Nav.NavigateTo($"/plan/{id}?completed={completedDays}");
+    }
+}

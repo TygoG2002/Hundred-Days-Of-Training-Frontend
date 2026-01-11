@@ -28,6 +28,53 @@
         color: #e5e5e5;
     }
 
+.dashboard-section {
+    margin-top: 12px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #eaeaea;
+}
+
+.card-today {
+    border-left: 3px solid #ff9800;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.badge {
+    background: rgba(255, 152, 0, 0.15);
+    color: #ff9800;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.card-meta {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #bdbdbd;
+}
+
+.empty-state {
+    background: #1c1c1c;
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
+}
+
+    .empty-state .muted {
+        color: #9a9a9a;
+        font-size: 14px;
+    }
 
 /* PROGRESS */
 

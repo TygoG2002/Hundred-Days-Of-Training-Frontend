@@ -21,7 +21,7 @@
     else
     {
         <button class="back-button" @onclick="GoBack">
-            ← Back
+            ← Back to Dashboard
         </button>
         <h1>@CurrentPlan</h1>
         <p>@Description</p>
@@ -106,6 +106,6 @@ else if (!HasError && Days != null)
 
     void GoBack()
     {
-        Nav.NavigateTo("/plans");
+        Nav.NavigateTo("/");
     }
 }
