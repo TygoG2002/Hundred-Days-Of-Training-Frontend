@@ -9,10 +9,7 @@ public class WorkoutApi
 
     private List<WorkoutPlanDto>? _plansCache;
     private List<PlanOverviewDto>? _plansOverviewCache;
-
-    private readonly Dictionary<int, List<int>> _daysCache = new();
-    private readonly Dictionary<(int planId, int day), List<WorkoutSetDto>> _setsCache = new();
-    private readonly Dictionary<(int planId, int day), (int done, int total)> _dayProgressCache = new();
+    private readonly Dictionary<int, List<DayOverviewDto>> _daysCache = new();
 
     public WorkoutApi(HttpClient http)
     {
@@ -35,6 +32,8 @@ public class WorkoutApi
             return default;
         }
     }
+
+    /* PLANS */
 
     public async Task<List<WorkoutPlanDto>> GetPlans()
     {
@@ -60,82 +59,50 @@ public class WorkoutApi
         return _plansOverviewCache;
     }
 
-    public async Task<List<int>> GetDays(int planId)
+    /* DAYS */
+
+    public async Task<List<DayOverviewDto>> GetDays(int planId)
     {
         if (_daysCache.TryGetValue(planId, out var cached))
             return cached;
 
         var days =
-            await SafeGet<List<int>>($"api/days/{planId}/days")
+            await SafeGet<List<DayOverviewDto>>(
+                $"api/days/{planId}/days")
             ?? new();
 
         _daysCache[planId] = days;
         return days;
     }
 
+    /* SETS */
+
     public async Task<List<WorkoutSetDto>> GetSets(int planId, int day)
     {
-        var key = (planId, day);
-
-        if (_setsCache.TryGetValue(key, out var cached))
-            return cached;
-
-        var sets =
-            await SafeGet<List<WorkoutSetDto>>(
-                $"api/sets/{planId}/days/{day}/sets")
+        return await SafeGet<List<WorkoutSetDto>>(
+            $"api/sets/{planId}/days/{day}/sets")
             ?? new();
-
-        _setsCache[key] = sets;
-        return sets;
     }
 
-    public async Task<(int done, int total)> GetDayProgress(int planId, int day)
+    /* COMPLETE DAY */
+
+    public async Task CompleteDay(int planId, int dayId, bool completed)
     {
-        var key = (planId, day);
-
-        if (_dayProgressCache.TryGetValue(key, out var cached))
-            return cached;
-
-        var result =
-            await SafeGet<DayProgressDto>(
-                $"api/days/{planId}/days/{day}/progress");
-
-        if (result == null)
-            return (0, 0);
-
-        var progress = (result.Done, result.Total);
-        _dayProgressCache[key] = progress;
-
-        return progress;
+        await _http.PostAsJsonAsync(
+            "api/days/completed",
+            new
+            {
+                planId,
+                dayId,
+                completed = completed
+            });
     }
 
-    public async Task UpdateSet(int setId, bool completed, int planId, int day)
-    {
-        try
-        {
-            await _http.PostAsJsonAsync(
-                $"api/sets/sets/{setId}",
-                completed);
-        }
-        catch
-        {
-        }
-
-        _setsCache.Remove((planId, day));
-        _dayProgressCache.Remove((planId, day));
-        _plansOverviewCache = null;
-    }
+    /* CACHE INVALIDATION  */
 
     public void InvalidatePlan(int planId)
     {
         _daysCache.Remove(planId);
-
-        foreach (var key in _setsCache.Keys.Where(k => k.planId == planId).ToList())
-            _setsCache.Remove(key);
-
-        foreach (var key in _dayProgressCache.Keys.Where(k => k.planId == planId).ToList())
-            _dayProgressCache.Remove(key);
-
         _plansOverviewCache = null;
     }
 }

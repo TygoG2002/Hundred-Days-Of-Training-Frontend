@@ -6,8 +6,8 @@
 <button class="back-button" @onclick="GoBack">
     ← Back
 </button>
-<h1 class="page-title">Day @day</h1>
 
+<h1 class="page-title">Day @day</h1>
 
 @if (Sets == null)
 {
@@ -34,7 +34,8 @@ else
             <label class="set">
                 <input type="checkbox"
                        checked="@set.Completed"
-                       @onchange="e => OnToggle(set.Id, (bool)e.Value!)" />
+                       @onchange="e => OnToggle(set, (bool)e.Value!)" />
+
                 <span>@set.Reps reps</span>
             </label>
         }
@@ -42,7 +43,7 @@ else
 
     @if (IsFinished)
     {
-        <button class="finish-button" @onclick="GoBack">
+        <button class="finish-button" @onclick="FinishDay">
             Finish day
         </button>
     }
@@ -59,17 +60,21 @@ else
     [Parameter] public int planId { get; set; }
     [Parameter] public int day { get; set; }
 
+    [SupplyParameterFromQuery]
+    public int completed { get; set; }
+
     List<WorkoutSetDto>? Sets;
-    int Completed;
-    int Total;
 
     int RestSeconds;
     CancellationTokenSource? RestCts;
 
+    int Completed => Sets?.Count(s => s.Completed) ?? 0;
+    int Total => Sets?.Count ?? 0;
+
     int ProgressPercent =>
         Total == 0 ? 0 : (int)((Completed / (double)Total) * 100);
 
-    bool IsFinished => Total > 0 && Completed == Total;
+    bool IsFinished => Completed == Total && Total > 0;
 
     string FocusText
     {
@@ -95,35 +100,16 @@ else
     protected override async Task OnInitializedAsync()
     {
         Sets = await Api.GetSets(planId, day);
-        await LoadProgress();
     }
 
-    
-
-    async Task OnToggle(int setId, bool completed)
+    async Task OnToggle(WorkoutSetDto set, bool completed)
     {
-        var set = Sets!.First(s => s.Id == setId);
-
-        if (set.Completed == completed)
-            return;
-
         set.Completed = completed;
-        Completed += completed ? 1 : -1;
-
-        _ = Api.UpdateSet(setId, completed, planId, day);
 
         if (completed)
             await StartRestTimer();
     }
 
-
-
-    async Task LoadProgress()
-    {
-        var p = await Api.GetDayProgress(planId, day);
-        Completed = p.done;
-        Total = p.total;
-    }
 
     async Task StartRestTimer()
     {
@@ -145,12 +131,22 @@ else
         }
         catch
         {
-            // timer cancelled
+            // cancelled
         }
     }
 
     void GoBack()
     {
-        Nav.NavigateTo($"/plan/{planId}");
+        Nav.NavigateTo($"/plan/{planId}?completed={completed}");
     }
+
+    async Task FinishDay()
+    {
+        await Api.CompleteDay(planId, day, true);
+
+        Api.InvalidatePlan(planId);
+
+        Nav.NavigateTo($"/plan/{planId}?completed={completed+1}");
+    }
+
 }

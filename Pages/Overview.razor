@@ -79,6 +79,8 @@ else
 
     void Go(int id)
     {
-        Nav.NavigateTo($"/plan/{id}");
+        var completedDays = Plans!.First(p => p.Id == id).CompletedDays;
+        Nav.NavigateTo($"/plan/{id}?completed={completedDays}");
     }
+
 }

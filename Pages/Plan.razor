@@ -5,7 +5,6 @@
 @inject NavigationManager Nav
 
 <div class="page-header">
-
     @if (CurrentPlan == null)
     {
         <h1 class="skeleton-text">Loading plan</h1>
@@ -34,10 +33,11 @@ else
     <div class="grid">
         @foreach (var day in Days)
         {
-            <DayCard DayNumber="day"
+            <DayCard DayNumber="day.DayId"
                      PlanId="PlanId"
-                     IsNext="@(day == NextDay)"
-                     IsLocked="@(IsLocked(day))" />
+                     IsLocked="@(day.DayId > CurrentDay)"
+                     IsCurrent="@(day.DayId == CurrentDay)"
+                     completed="completed"        />
         }
     </div>
 }
@@ -45,50 +45,27 @@ else
 @code {
     [Parameter] public int PlanId { get; set; }
 
-    List<int>? Days;
+    List<DayOverviewDto>? Days;
     string? CurrentPlan;
     string? Description;
-    int? NextDay;
-    HashSet<int> FinishedDays = new();
+
+
+    [SupplyParameterFromQuery]
+    public int completed { get; set; }
+
+    int CurrentDay;
 
     protected override async Task OnInitializedAsync()
     {
-        var daysTask = Api.GetDays(PlanId);
-        var plansTask = Api.GetPlans();
 
-        await Task.WhenAll(daysTask, plansTask);
+        Days = await Api.GetDays(PlanId);
+        var plans = await Api.GetPlans();
 
-        Days = daysTask.Result;
+        var plan = plans.FirstOrDefault(p => p.Id == PlanId);
+        CurrentPlan = plan?.Name;
+        Description = plan?.Description;
 
-        CurrentPlan = plansTask.Result
-            .FirstOrDefault(p => p.Id == PlanId)?.Name;
-        Description = plansTask.Result.FirstOrDefault(k => k.Id == PlanId)?.Description;
-
-        var progressTasks = Days.Select(day =>
-            Api.GetDayProgress(PlanId, day)
-               .ContinueWith(t => (day, t.Result))
-        );
-
-        var results = await Task.WhenAll(progressTasks);
-
-        foreach (var (day, progress) in results)
-        {
-            if (progress.total > 0 && progress.done == progress.total)
-            {
-                FinishedDays.Add(day);
-            }
-            else
-            {
-                NextDay ??= day;
-            }
-        }
-    }
-
-    bool IsLocked(int day)
-    {
-        if (FinishedDays.Contains(day)) return false;
-        if (day == NextDay) return false;
-        return true;
+        CurrentDay = completed + 1;
     }
 
     void GoBack()

@@ -1,52 +1,42 @@
 ﻿@inject NavigationManager Nav
-@inject WorkoutApi Api
 
 <div class="card @(CardClass)"
      @onclick="@(IsLocked ? null : Go)">
     <h3>Day @DayNumber</h3>
-    <p>@ProgressText</p>
-    <p>@WorkoutSets</p>
+    @if (IsCurrent)
+    {
+        <p class="card-sub">Today</p>
+    }
+    else if (IsLocked)
+    {
+        <p class="card-sub muted">Locked</p>
+    }
+    else
+    {
+        <p class="card-sub muted">Finished</p>
+    }
 </div>
 
 @code {
     [Parameter] public int DayNumber { get; set; }
     [Parameter] public int PlanId { get; set; }
 
-    [Parameter] public bool IsNext { get; set; }
+    [Parameter] public int CompletedDays { get; set; }
     [Parameter] public bool IsLocked { get; set; }
+    [Parameter] public bool IsCurrent { get; set; }
 
-    int Done;
-    int Total;
-    int WorkoutSetCount;
 
-    bool IsFinished => Total > 0 && Done == Total;
+    [Parameter]
+    public int completed { get; set; }
 
     string CardClass =>
-        IsLocked ? "card-finished"
-        : IsFinished ? "card-finished"
-        : IsNext ? "card-next"
-        : "";
-
-    string ProgressText =>
-        IsFinished
-            ? "Finished"
-            : Total > 0
-                ? $"{Done} / {Total} sets"
-                : "Not started";
-
-    string WorkoutSets =>
-        !IsFinished
-            ? $"{WorkoutSetCount - Done} sets left"
-            : "";
-
-    protected override async Task OnInitializedAsync()
-    {
-        (Done, Total) = await Api.GetDayProgress(PlanId, DayNumber);
-        WorkoutSetCount = (await Api.GetSets(PlanId, DayNumber)).Count;
-    }
+        IsLocked ? "card-locked"
+        : IsCurrent ? "card-next" 
+        : "card-finished";
 
     void Go()
     {
-        Nav.NavigateTo($"/plan/{PlanId}/day/{DayNumber}");
+        Nav.NavigateTo(
+            $"/plan/{PlanId}/day/{DayNumber}?completed={completed}");
     }
 }

@@ -1,7 +1,6 @@
 ﻿.card-finished {
     background: #151515;
-    opacity: 0.45;
-    cursor: default;
+    opacity: 0.5;
 }
 
     .card-finished::before {
@@ -20,6 +19,7 @@
 }
 
 .card-next {
+    opacity 1;
     box-shadow: 0 0 0 2px rgba(255,152,0,0.9), 0 12px 30px rgba(255,152,0,0.35);
 }
 

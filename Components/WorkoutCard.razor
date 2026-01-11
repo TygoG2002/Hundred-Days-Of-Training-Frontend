@@ -1,17 +1,1 @@
-﻿@inject NavigationManager Nav
-
-<div class="card" @onclick="Go">
-    <h3>@Title</h3>
-    <p>@Subtitle</p>
-</div>
-
-@code {
-    [Parameter] public string Title { get; set; } = "";
-    [Parameter] public string Subtitle { get; set; } = "";
-    [Parameter] public int PlanId { get; set; }
-
-    void Go()
-    {
-        Nav.NavigateTo($"/plan/{PlanId}");
-    }
-}
+﻿
