@@ -46,6 +46,7 @@ else if (!HasError && Days != null)
                      PlanId="PlanId"
                      IsLocked="@(day.DayId > CurrentDay)"
                      IsCurrent="@(day.DayId == CurrentDay)"
+                     IsFinished="@(day.DayId < CurrentDay)"
                      completed="completed" />
         }
     </div>

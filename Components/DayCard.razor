@@ -1,7 +1,7 @@
 ﻿@inject NavigationManager Nav
 
 <div class="card @(CardClass)"
-     @onclick="@(IsLocked ? null : Go)">
+     @onclick="@(IsLocked || IsFinished ? null : Go)">
     <h3>Day @DayNumber</h3>
     @if (IsCurrent)
     {
@@ -24,6 +24,7 @@
     [Parameter] public int CompletedDays { get; set; }
     [Parameter] public bool IsLocked { get; set; }
     [Parameter] public bool IsCurrent { get; set; }
+    [Parameter] public bool IsFinished { get; set; }
 
 
     [Parameter]
