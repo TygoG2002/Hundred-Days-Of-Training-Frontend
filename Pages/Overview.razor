@@ -5,8 +5,7 @@
 <h1 class="page-title">Your workouts</h1>
 <p class="page-subtitle">Pick up where you left off</p>
 
-
-@if (Plans == null)
+@if (IsLoading)
 {
     <div class="grid">
         @for (int i = 0; i < 3; i++)
@@ -15,14 +14,25 @@
         }
     </div>
 }
-else if (!Plans.Any())
+else if (HasError)
+{
+    <div class="error-state">
+        <h3>Something went wrong</h3>
+        <p>We couldn’t load your workout plans.</p>
+
+        <button class="finish-button" @onclick="Retry">
+            Retry
+        </button>
+    </div>
+}
+else if (!Plans!.Any())
 {
     <p>No workout plans yet.</p>
 }
 else
 {
     <div class="grid">
-        @foreach (var plan in Plans)
+        @foreach (var plan in Plans!)
         {
             <div class="card" @onclick="() => Go(plan.Id)">
                 <h3>@plan.Name</h3>
@@ -46,16 +56,37 @@ else
 @code {
     List<PlanOverviewDto>? Plans;
 
+    bool IsLoading = true;
+    bool HasError = false;
+
     protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    async Task Load()
     {
         try
         {
+            IsLoading = true;
+            HasError = false;
+
             Plans = await Api.GetPlansOverview();
         }
         catch
         {
+            HasError = true;
             Plans = new();
         }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    async Task Retry()
+    {
+        await Load();
     }
 
     string GetProgressText(PlanOverviewDto plan)
@@ -82,5 +113,4 @@ else
         var completedDays = Plans!.First(p => p.Id == id).CompletedDays;
         Nav.NavigateTo($"/plan/{id}?completed={completedDays}");
     }
-
 }

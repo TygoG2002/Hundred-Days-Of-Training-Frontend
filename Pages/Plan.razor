@@ -5,9 +5,18 @@
 @inject NavigationManager Nav
 
 <div class="page-header">
-    @if (CurrentPlan == null)
+    @if (IsLoading)
     {
         <h1 class="skeleton-text">Loading plan</h1>
+    }
+    else if (HasError)
+    {
+        <h1>Something went wrong</h1>
+        <p>We couldn’t load this plan.</p>
+
+        <button class="finish-button" @onclick="Retry">
+            Retry
+        </button>
     }
     else
     {
@@ -19,7 +28,7 @@
     }
 </div>
 
-@if (Days == null)
+@if (IsLoading)
 {
     <div class="grid">
         @for (int i = 0; i < 6; i++)
@@ -28,7 +37,7 @@
         }
     </div>
 }
-else
+else if (!HasError && Days != null)
 {
     <div class="grid">
         @foreach (var day in Days)
@@ -37,7 +46,7 @@ else
                      PlanId="PlanId"
                      IsLocked="@(day.DayId > CurrentDay)"
                      IsCurrent="@(day.DayId == CurrentDay)"
-                     completed="completed"        />
+                     completed="completed" />
         }
     </div>
 }
@@ -45,27 +54,53 @@ else
 @code {
     [Parameter] public int PlanId { get; set; }
 
+    [SupplyParameterFromQuery]
+    public int completed { get; set; }
+
     List<DayOverviewDto>? Days;
     string? CurrentPlan;
     string? Description;
 
-
-    [SupplyParameterFromQuery]
-    public int completed { get; set; }
-
     int CurrentDay;
+
+    bool IsLoading = true;
+    bool HasError = false;
 
     protected override async Task OnInitializedAsync()
     {
+        await Load();
+    }
 
-        Days = await Api.GetDays(PlanId);
-        var plans = await Api.GetPlans();
+    async Task Load()
+    {
+        try
+        {
+            IsLoading = true;
+            HasError = false;
 
-        var plan = plans.FirstOrDefault(p => p.Id == PlanId);
-        CurrentPlan = plan?.Name;
-        Description = plan?.Description;
+            Days = await Api.GetDays(PlanId);
 
-        CurrentDay = completed + 1;
+            var plans = await Api.GetPlans();
+            var plan = plans.FirstOrDefault(p => p.Id == PlanId);
+
+            CurrentPlan = plan?.Name;
+            Description = plan?.Description;
+
+            CurrentDay = completed + 1;
+        }
+        catch
+        {
+            HasError = true;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    async Task Retry()
+    {
+        await Load();
     }
 
     void GoBack()

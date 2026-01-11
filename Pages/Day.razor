@@ -9,13 +9,24 @@
 
 <h1 class="page-title">Day @day</h1>
 
-@if (Sets == null)
+@if (IsLoading)
 {
     <div class="sets skeleton">
         <div class="set skeleton-line"></div>
         <div class="set skeleton-line"></div>
         <div class="set skeleton-line"></div>
         <div class="set skeleton-line"></div>
+    </div>
+}
+else if (HasError)
+{
+    <div class="error-state">
+        <h3>Something went wrong</h3>
+        <p>We couldn’t load today’s workout.</p>
+
+        <button class="finish-button" @onclick="Retry">
+            Retry
+        </button>
     </div>
 }
 else
@@ -29,13 +40,12 @@ else
     </div>
 
     <div class="sets">
-        @foreach (var set in Sets)
+        @foreach (var set in Sets!)
         {
             <label class="set">
                 <input type="checkbox"
                        checked="@set.Completed"
                        @onchange="e => OnToggle(set, (bool)e.Value!)" />
-
                 <span>@set.Reps reps</span>
             </label>
         }
@@ -64,6 +74,9 @@ else
     public int completed { get; set; }
 
     List<WorkoutSetDto>? Sets;
+
+    bool IsLoading = true;
+    bool HasError = false;
 
     int RestSeconds;
     CancellationTokenSource? RestCts;
@@ -99,7 +112,32 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Sets = await Api.GetSets(planId, day);
+        await Load();
+    }
+
+    async Task Load()
+    {
+        try
+        {
+            IsLoading = true;
+            HasError = false;
+
+            Sets = await Api.GetSets(planId, day);
+        }
+        catch
+        {
+            HasError = true;
+            Sets = null;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    async Task Retry()
+    {
+        await Load();
     }
 
     async Task OnToggle(WorkoutSetDto set, bool completed)
@@ -109,7 +147,6 @@ else
         if (completed)
             await StartRestTimer();
     }
-
 
     async Task StartRestTimer()
     {
@@ -146,7 +183,6 @@ else
 
         Api.InvalidatePlan(planId);
 
-        Nav.NavigateTo($"/plan/{planId}?completed={completed+1}");
+        Nav.NavigateTo($"/plan/{planId}?completed={completed + 1}");
     }
-
 }
