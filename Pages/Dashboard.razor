@@ -3,10 +3,9 @@
 @inject NavigationManager Nav
 
 <h1 class="page-title">Dashboard</h1>
-<p class="page-subtitle">Your focus for today</p>
+<p class="page-subtitle">@Greeting</p>
 
 <section class="dashboard-section">
-    <h3 class="section-title">Still to do today</h3>
 
     @if (IsLoading)
     {
@@ -26,15 +25,25 @@
             </button>
         </div>
     }
+    else if (!TodayWorkouts!.Any() && AllCompleted)
+    {
+        <div class="empty-state celebration">
+            <h2>🏆 You did it.</h2>
+            <p>You completed all your workouts.</p>
+            <p class="muted">100 days. No excuses. Respect. 💪</p>
+        </div>
+    }
     else if (!TodayWorkouts!.Any())
     {
         <div class="empty-state">
             <p>🎉 You’re all done for today.</p>
-            <p class="muted">Come back tomorrow.</p>
+            <p class="muted">@Motivation</p>
         </div>
     }
     else
     {
+        <h3 class="section-title">Still to do today</h3>
+
         <div class="grid">
             @foreach (var workout in TodayWorkouts!)
             {
@@ -60,6 +69,41 @@
 
     bool IsLoading = true;
     bool HasError = false;
+    bool AllCompleted = false;
+
+    string Greeting
+    {
+        get
+        {
+            var hour = DateTime.Now.Hour;
+
+            if (hour < 11)
+                return "Good morning ☀️ Your focus for today";
+
+            if (hour < 18)
+                return "Good afternoon 👋 Your focus for today";
+
+            return "Good evening 🌙 Your focus for today";
+        }
+    }
+
+    // ---------------- MOTIVATION ----------------
+    string Motivation
+    {
+        get
+        {
+            return Motivations[DateTime.Now.Day % Motivations.Length];
+        }
+    }
+
+    static readonly string[] Motivations =
+    {
+        "Consistency beats motivation.",
+        "Just showing up is enough.",
+        "One workout closer to your goal.",
+        "Don’t break the chain.",
+        "Small effort. Big results."
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,11 +118,16 @@
             HasError = false;
 
             TodayWorkouts = await Api.GetTodayWorkouts();
+
+            var plans = await Api.GetPlansOverview();
+            AllCompleted = plans.Any() &&
+                           plans.All(p => p.CompletedDays >= p.TotalDays);
         }
         catch
         {
             HasError = true;
             TodayWorkouts = new();
+            AllCompleted = false;
         }
         finally
         {
@@ -97,7 +146,6 @@
             TodayWorkouts!.First(p => p.Id == id).CompletedDays;
 
         Nav.NavigateTo(
-        $"/plan/{id}/day/{completedDays+1}?completed={completedDays}");
-
+            $"/plan/{id}/day/{completedDays + 1}?completed={completedDays}");
     }
 }

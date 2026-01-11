@@ -44,6 +44,7 @@ else
         {
             <label class="set">
                 <input type="checkbox"
+                       checked="@set.Completed"
                        @onchange="e => OnToggle(set, (bool)e.Value!)" />
                 <span>@set.Reps reps</span>
             </label>
@@ -73,38 +74,36 @@ else
     public int completed { get; set; }
 
     List<WorkoutSetDto>? Sets;
-
     bool IsLoading = true;
     bool HasError = false;
 
     int RestSeconds;
     CancellationTokenSource? RestCts;
 
-    int Completed => Sets?.Count(s => s.Completed) ?? 0;
-    int Total => Sets?.Count ?? 0;
+    int TotalReps => Sets?.Sum(s => s.Reps) ?? 0;
+    int DoneReps => Sets?.Where(s => s.Completed).Sum(s => s.Reps) ?? 0;
 
     int ProgressPercent =>
-        Total == 0 ? 0 : (int)((Completed / (double)Total) * 100);
+        TotalReps == 0 ? 0 : (int)((DoneReps / (double)TotalReps) * 100);
 
-    bool IsFinished => Completed == Total && Total > 0;
+    bool IsFinished => TotalReps > 0 && DoneReps == TotalReps;
 
     string FocusText
     {
         get
         {
-            if (Total == 0)
+            if (TotalReps == 0)
                 return "";
 
             if (IsFinished)
                 return "Done for today 🎉";
 
-            var remaining = Total - Completed;
+            var remaining = TotalReps - DoneReps;
 
             return remaining switch
             {
-                1 => "Last set 💪",
-                2 => "Almost there 👊",
-                _ => $"{remaining} sets left"
+                <= 5 => "Last set 💪",
+                _ => $"{remaining} reps left"
             };
         }
     }
@@ -122,6 +121,11 @@ else
             HasError = false;
 
             Sets = await Api.GetSets(planId, day);
+
+            foreach (var set in Sets)
+            {
+                set.Completed = false;
+            }
         }
         catch
         {
@@ -162,8 +166,6 @@ else
                 RestSeconds--;
                 StateHasChanged();
             }
-
-            await JS.InvokeVoidAsync("navigator.vibrate", 50);
         }
         catch
         {
@@ -173,7 +175,7 @@ else
 
     void GoBack()
     {
-        Nav.NavigateTo($"/");
+        Nav.NavigateTo("/");
     }
 
     async Task FinishDay()
