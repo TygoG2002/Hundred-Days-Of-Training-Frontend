@@ -1,0 +1,78 @@
+﻿@inject IJSRuntime JS
+
+@if (SecondsLeft > 0)
+{
+    <div class="rest-overlay">
+        <div class="rest-card">
+            <div class="rest-circle">
+                <svg viewBox="0 0 100 100">
+                    <circle class="bg" cx="50" cy="50" r="45" />
+                    <circle class="progress"
+                            cx="50"
+                            cy="50"
+                            r="45"
+                            style="stroke-dashoffset:@DashOffset" />
+                </svg>
+
+                <div class="rest-time">
+                    @SecondsLeft
+                </div>
+            </div>
+
+            <p class="rest-label">Rest</p>
+
+            <button class="rest-skip" @onclick="Skip">
+                Skip
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Duration { get; set; } = 60;
+    [Parameter] public EventCallback OnFinished { get; set; }
+
+    int SecondsLeft;
+    CancellationTokenSource? Cts;
+
+    double DashOffset =>
+        283 - (283 * (SecondsLeft / (double)Duration));
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (SecondsLeft == 0)
+            await Start();
+    }
+
+    async Task Start()
+    {
+        Cts?.Cancel();
+        Cts = new();
+
+        SecondsLeft = Duration;
+
+        try
+        {
+            while (SecondsLeft > 0)
+            {
+                await Task.Delay(1000, Cts.Token);
+                SecondsLeft--;
+                StateHasChanged();
+            }
+
+            await JS.InvokeVoidAsync("navigator.vibrate", 50);
+            await OnFinished.InvokeAsync();
+        }
+        catch
+        {
+            // cancelled
+        }
+    }
+
+    async Task Skip()
+    {
+        Cts?.Cancel();
+        SecondsLeft = 0;
+        await OnFinished.InvokeAsync();
+    }
+}
