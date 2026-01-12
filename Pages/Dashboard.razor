@@ -74,10 +74,12 @@
 
         @if (DisciplineCompleted)
         {
-            <p>
-                ✅ Completed today. Respect.
-            </p>
+            <div class="discipline-status completed">
+                <span class="status-icon">✓</span>
+                <span class="status-text">Completed today</span>
+            </div>
         }
+
         else
         {
             <button class="finish-button outline"
@@ -133,7 +135,7 @@
         {
             return (DateTime.Today.DayOfYear % 8) switch
             {
-                0 => "Oxygen Debt",
+                0 => "Train",
                 1 => "Quads of Stone",
                 2 => "Hang or Fall",
                 3 => "Still in the Fire",
@@ -152,11 +154,11 @@
         {
             return (DateTime.Today.DayOfYear % 8) switch
             {
-                0 => "100 push-ups. Nasal breathing only. Mouth breathing = restart set.",
+                0 => "Do all Daily workout plans one after the other.",
                 1 => "Wall sit 1 minute total. Every stand-up adds 20 squats.",
                 2 => "Dead hang 2 minutes total. Drop = 20 push-ups. No straps.",
-                3 => "Deep squat hold 2 minutes. Heels down. No movement. No distractions.",
-                4 => "10 rounds: 10 burpees, 10 push-ups, 10 squats. No rest.",
+                3 => "Deep squat hold 1 minutes. Heels down. No movement. No distractions.",
+                4 => "2 rounds: 10 burpees, 10 push-ups, 10 squats. No rest.",
                 5 => "First 4 hours of the day: no phone scrolling, no sugar, no entertainment.",
                 6 => "Cold shower 3 minutes. No warm finish.",
                 7 => "Read 10 pages of a difficult book. No music. No phone.",
