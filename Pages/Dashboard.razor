@@ -74,10 +74,12 @@
 
         @if (DisciplineCompleted)
         {
-            <p>
-                ✅ Completed today. Respect.
-            </p>
+            <div class="discipline-status completed">
+                <span class="status-icon">✓</span>
+                <span class="status-text">Completed today</span>
+            </div>
         }
+
         else
         {
             <button class="finish-button outline"

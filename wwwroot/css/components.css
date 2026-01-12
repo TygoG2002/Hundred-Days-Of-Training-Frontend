@@ -159,10 +159,26 @@ button {
 
 .finish-button {
     margin-top: 24px;
-    background: #4caf50;
-    color: #000;
+    background: #111;
+    color: #f5f5f5;
     font-weight: 700;
+    border: 1px solid #2a2a2a;
+    padding: 14px 20px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
+
+    .finish-button:hover {
+        background: #1a1a1a;
+        border-color: #444;
+    }
+
+    .finish-button:active {
+        background: #000;
+    }
+
 
 .back-button {
     background: none;
