@@ -1,0 +1,182 @@
+﻿@page "/calendar"
+@inject WorkoutApi Api
+
+<h1 class="page-title">Calendar</h1>
+
+<div class="calendar-header">
+    <button class="nav-btn" @onclick="PrevMonth">‹</button>
+
+    <div class="month-title">
+        <h2>@CurrentMonth.ToString("MMMM yyyy")</h2>
+        <div class="month-badge">
+            🏆 @FullyCompletedDays / @DaysInMonth perfect days
+        </div>
+    </div>
+
+    <button class="nav-btn" @onclick="NextMonth">›</button>
+</div>
+
+<div class="calendar-grid">
+
+    @foreach (var d in DayNames)
+    {
+        <div class="calendar-day-header">@d</div>
+    }
+
+    @foreach (var cell in CalendarCells)
+    {
+        <div class="calendar-day
+                        @(cell.IsOutside ? "outside" : "")
+                        @(cell.IsToday ? "today" : "")
+                        @(cell.IsFullyCompleted ? "completed-day" : "")"
+             @onclick="() => SelectDate(cell.Date)">
+
+            <div class="day-number">@cell.Date.Day</div>
+
+            @if (cell.Entries.Any())
+            {
+                <div class="day-dots">
+                    @foreach (var entry in cell.Entries.Take(3))
+                    {
+                        <span class="day-dot"
+                              style="background:@entry.Color"></span>
+                    }
+
+                    @if (cell.Entries.Count > 3)
+                    {
+                        <span class="day-dot more">+</span>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (SelectedDate is not null &&
+     EntriesByDate.TryGetValue(SelectedDate.Value, out var entries))
+{
+    <div class="day-details">
+        <h3>@SelectedDate.Value.ToString("dddd, MMMM d")</h3>
+
+        @foreach (var entry in entries)
+        {
+            <div class="day-entry"
+                 style="border-left-color:@entry.Color">
+                <strong>@entry.PlanName</strong>
+                <span class="muted">— Day @entry.DayId</span>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    DateTime CurrentMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    DateOnly Today = DateOnly.FromDateTime(DateTime.Today);
+    DateOnly? SelectedDate;
+
+    int TotalPlans;
+
+    Dictionary<DateOnly, List<CalendarEntryDto>> EntriesByDate = new();
+    List<CalendarCellDto> CalendarCells = new();
+
+    readonly string[] DayNames =
+        { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+
+    int DaysInMonth =>
+        DateTime.DaysInMonth(CurrentMonth.Year, CurrentMonth.Month);
+
+    int FullyCompletedDays =>
+        CalendarCells.Count(c =>
+            !c.IsOutside &&
+            c.IsFullyCompleted);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        BuildCalendar();
+    }
+
+    async Task LoadData()
+    {
+        EntriesByDate.Clear();
+
+        var plans = await Api.GetPlans();
+        TotalPlans = plans.Count;
+
+        foreach (var plan in plans)
+        {
+            var days = await Api.GetDays(plan.Id);
+
+            foreach (var d in days.Where(x => x.CompletedAt != null))
+            {
+                var date = DateOnly.FromDateTime(d.CompletedAt!.Value);
+
+                if (!EntriesByDate.ContainsKey(date))
+                    EntriesByDate[date] = new();
+
+                EntriesByDate[date].Add(new CalendarEntryDto
+                {
+                    PlanId = plan.Id,
+                    PlanName = plan.Name,
+                    DayId = d.DayId
+                });
+            }
+        }
+    }
+
+    void BuildCalendar()
+    {
+        CalendarCells.Clear();
+
+        var first = CurrentMonth;
+        int offset = ((int)first.DayOfWeek + 6) % 7; 
+
+        for (int i = -offset; i < 42 - offset; i++)
+        {
+            var date = first.AddDays(i);
+            var d = DateOnly.FromDateTime(date);
+
+            var entries =
+                EntriesByDate.TryGetValue(d, out var e)
+                ? e
+                : new List<CalendarEntryDto>();
+
+            CalendarCells.Add(new CalendarCellDto
+            {
+                Date = d,
+                IsOutside = date.Month != CurrentMonth.Month,
+                IsToday = d == Today,
+                Entries = entries,
+                IsFullyCompleted = IsDayFullyCompleted(entries)
+            });
+        }
+    }
+
+    bool IsDayFullyCompleted(List<CalendarEntryDto> entries)
+    {
+        if (!entries.Any())
+            return false;
+
+        var plansDone =
+            entries.Select(e => e.PlanId).Distinct().Count();
+
+        return plansDone == TotalPlans;
+    }
+
+    void SelectDate(DateOnly date)
+    {
+        SelectedDate = date;
+    }
+
+    void PrevMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(-1);
+        BuildCalendar();
+    }
+
+    void NextMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(1);
+        BuildCalendar();
+    }
+}

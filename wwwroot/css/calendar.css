@@ -1,0 +1,132 @@
+﻿.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.month-title {
+    text-align: center;
+}
+
+    .month-title h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+
+.month-badge {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-top: 4px;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #777;
+}
+
+.calendar-day {
+    background: #1c1c1c;
+    border-radius: 12px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    position: relative;
+}
+
+    .calendar-day.outside {
+        background: #121212;
+        color: #444;
+    }
+
+    .calendar-day.today {
+        border: 2px solid #ff9800;
+    }
+
+    .calendar-day.completed-day {
+        opacity: 0.5;
+    }
+
+.day-number {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.day-dots {
+    margin-top: auto;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.day-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+    .day-dot.more {
+        font-size: 0.6rem;
+        color: #aaa;
+    }
+
+.day-details {
+    margin-top: 20px;
+    padding: 16px;
+    background: #181818;
+    border-radius: 14px;
+}
+
+    .day-details h3 {
+        margin-top: 0;
+        margin-bottom: 12px;
+    }
+
+.day-entry {
+    padding: 6px 0;
+    font-size: 0.9rem;
+    border-left: 4px solid;
+    padding-left: 10px;
+    margin-bottom: 6px;
+}
+
+.muted {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+
+    .calendar-grid {
+        gap: 6px;
+    }
+
+    .calendar-day {
+        min-height: 52px;
+    }
+
+    .calendar-day-header {
+        font-size: 0.65rem;
+    }
+
+    .day-number {
+        font-size: 0.7rem;
+    }
+}
