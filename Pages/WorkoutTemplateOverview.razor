@@ -1,0 +1,38 @@
+﻿@page "/Templates/{TemplateId:int}"
+@using HundredDays.Components
+@using HundredDays.Services
+@inject WorkoutApi Api
+@inject NavigationManager Nav
+
+
+<h3>@(CurrentTemplate?.Name ?? "")</h3>
+
+<div class="exerciseContainer">
+     @foreach(var item in exercises) {
+        <div class="exercise">
+     <p> @item.Name </p>
+     <p> @item.Sets X @item.Reps</p>
+        </div>
+     }
+     </div>
+
+
+     <button class="finish-button"> Start Workout </button>
+@code {
+
+    [Parameter] public int TemplateId { get; set; }
+
+    List<TemplateExerciseDto>? exercises;
+
+    public WorkoutTemplatesDto? CurrentTemplate { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<WorkoutTemplatesDto> list = await Api.GetTemplates();
+        var currentTemplate = list.FirstOrDefault(k => k.Id == TemplateId);
+
+        CurrentTemplate = currentTemplate;
+
+        exercises = currentTemplate.Exercises;
+    }
+}

@@ -10,6 +10,7 @@ public class WorkoutApi
     private List<WorkoutPlanDto>? _plansCache;
     private List<PlanOverviewDto>? _plansOverviewCache;
     private readonly Dictionary<int, List<DayOverviewDto>> _daysCache = new();
+    private List<WorkoutTemplatesDto> _templatesCache; 
 
     public WorkoutApi(HttpClient http)
     {
@@ -85,6 +86,17 @@ public class WorkoutApi
 
         response.EnsureSuccessStatusCode();
     }
+
+    /* WORKOUT TEMPLATES */
+    public async Task<List<WorkoutTemplatesDto>> GetTemplates()
+    {
+        if (_templatesCache != null)
+            return _templatesCache;
+
+        _templatesCache = await SafeGet<List<WorkoutTemplatesDto>>("api/Templates");
+        return _templatesCache;
+    }
+
 
     /* DASHBOARD */
 

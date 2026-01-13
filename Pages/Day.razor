@@ -91,7 +91,7 @@ else
     bool ShowRest = false;
     int RestKey = 0;
 
-    bool IsFinishing = false; // 👈 NEW
+    bool IsFinishing = false; 
 
     int TotalReps => Sets?.Sum(s => s.Reps) ?? 0;
     int DoneReps => Sets?.Where(s => s.Completed).Sum(s => s.Reps) ?? 0;

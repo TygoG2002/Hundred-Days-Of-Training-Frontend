@@ -1,0 +1,37 @@
+﻿@page "/Templates"
+@using HundredDays.Components
+@using HundredDays.Services
+@inject WorkoutApi Api
+@inject NavigationManager Nav
+
+<h3>Workout Templates</h3>
+
+<div class="grid"> 
+    @foreach(var item in list)
+    {
+        <div class="card" @onclick="() => Go(item.Id)">
+
+    <h3> @item.Name </h3>
+    <p class="plan-cta">Start Workout →</p>
+</div>
+    }
+</div>
+@code {
+
+    List<WorkoutTemplatesDto> list = new(); 
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        list = await Api.GetTemplates();
+
+    }
+
+
+    void Go(int id)
+    {
+        Nav.NavigateTo($"/Templates/{id}");
+    }
+
+}
