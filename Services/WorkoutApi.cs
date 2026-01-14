@@ -97,6 +97,22 @@ public class WorkoutApi
         return _templatesCache;
     }
 
+    /* WORKOUT SESSIONS */
+    public async Task<WorkoutSessionDto> StartWorkoutSession(int workoutTemplateId)
+    {
+        var response = await _http.PostAsJsonAsync(
+            "api/sessions/start",
+            new { workoutTemplateId });
+
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<WorkoutSessionDto>();
+
+        if (result == null)
+            throw new Exception("Empty response when starting workout session");
+
+        return result;
+    }
 
     /* DASHBOARD */
 
