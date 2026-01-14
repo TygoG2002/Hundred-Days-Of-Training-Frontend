@@ -9,4 +9,7 @@ public class WorkoutSessionSetDto
 
     public int? CurrentReps { get; set; }
     public decimal? CurrentWeight { get; set; }
+
+    public bool Completed { get; set; }
+
 }

@@ -31,7 +31,7 @@ else
     <div class="sets">
         @foreach (var set in CurrentExercise.SetsData)
         {
-            <div class="set workout-set">
+            <label class="set workout-set @(set.Completed ? "completed" : "")">
                 <div class="set-left">
                     <strong>Set @set.SetNumber</strong>
 
@@ -46,19 +46,20 @@ else
                 <div class="set-inputs">
                     <input type="number"
                            placeholder="Reps"
-                           @bind="set.CurrentReps" />
+                           @bind="set.CurrentReps"
+                           disabled="@set.Completed" />
 
                     <input type="number"
                            placeholder="kg"
                            step="0.5"
-                           @bind="set.CurrentWeight" />
-
-                    <button class="set-done"
-                            @onclick="() => OnSetDone(set)">
-                        Done
-                    </button>
+                           @bind="set.CurrentWeight"
+                           disabled="@set.Completed" />
                 </div>
-            </div>
+
+                <input type="checkbox"
+                       checked="@set.Completed"
+                       @onchange="e => OnSetToggle(set, (bool)e.Value!)" />
+            </label>
         }
     </div>
 
@@ -85,8 +86,8 @@ else
     int RestKey = 0;
     int RestSeconds = 60;
 
-    WorkoutSessionExerciseDto CurrentExercise
-        => Session!.Exercises[currentExerciseIndex];
+    WorkoutSessionExerciseDto CurrentExercise =>
+        Session!.Exercises[currentExerciseIndex];
 
     int ProgressPercent =>
         (int)(((currentExerciseIndex + 1) /
@@ -101,13 +102,22 @@ else
     protected override async Task OnInitializedAsync()
     {
         Session = await Api.GetWorkoutSession(SessionId);
+
+        foreach (var exercise in Session.Exercises)
+        {
+            foreach (var set in exercise.SetsData)
+                set.Completed = false;
+        }
     }
 
-    void OnSetDone(WorkoutSessionSetDto set)
+    void OnSetToggle(WorkoutSessionSetDto set, bool completed)
     {
+        set.Completed = completed;
 
-        
-        //rest hardcoded for now. im gonna change this later
+        if (!completed)
+            return;
+
+        // tijdelijke simpele restlogica
         RestSeconds = CurrentExercise.TargetReps <= 5 ? 120 : 60;
 
         RestKey++;
@@ -145,6 +155,4 @@ else
         await Api.FinishWorkoutSession(SessionId, payload);
         Nav.NavigateTo("/");
     }
-
-   
 }
