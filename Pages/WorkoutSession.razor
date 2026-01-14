@@ -1,12 +1,9 @@
-﻿@page "/workout-session/{SessionId:int}"
+﻿@layout WorkoutSessionLayout
+@page "/workout-session/{SessionId:int}"
 @inject WorkoutApi Api
 @inject NavigationManager Nav
 
 @using HundredDays.Components
-
-<button class="back-button" @onclick="GoBack">
-    ← Back
-</button>
 
 @if (Session == null)
 {
@@ -149,8 +146,5 @@ else
         Nav.NavigateTo("/");
     }
 
-    void GoBack()
-    {
-        Nav.NavigateTo("/");
-    }
+   
 }

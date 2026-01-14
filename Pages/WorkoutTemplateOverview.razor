@@ -4,6 +4,11 @@
 @inject WorkoutApi Api
 @inject NavigationManager Nav
 
+
+<button class="back-button" @onclick="GoBack">
+    ← Back
+</button>
+
 <h3>@(CurrentTemplate?.Name ?? "")</h3>
 
 <div class="exerciseContainer">
@@ -43,4 +48,10 @@
 
         Nav.NavigateTo($"/workout-session/{session.SessionId}");
     }
+
+    void GoBack()
+    {
+        Nav.NavigateTo("/");
+    }
+
 }
