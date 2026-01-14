@@ -42,8 +42,7 @@
 }
 
 .calendar-day {
-    background: red;
-    opacity: 0.5;
+    background: #1c1c1c;
     border-radius: 12px;
     padding: 6px;
     display: flex;
@@ -69,7 +68,7 @@
 
     .calendar-day.completed-day {
         background: green;
-        opacity: 0.7;
+        opacity: 0.5;
     }
 
 .day-number {
