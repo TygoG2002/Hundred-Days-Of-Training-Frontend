@@ -3,76 +3,112 @@
 
 <h1 class="page-title">Calendar</h1>
 
-<div class="calendar-header">
-    <button class="nav-btn" @onclick="PrevMonth">‹</button>
+@if (IsLoading)
+{
+    <div class="calendar-header skeleton-line"
+         style="height:48px;border-radius:12px;margin-bottom:16px;"></div>
 
-    <div class="month-title">
-        <h2>@CurrentMonth.ToString("MMMM yyyy")</h2>
-        <div class="month-badge">
-            🏆 @FullyCompletedDays / @DaysInMonth perfect days
+    <div class="calendar-grid">
+        @for (int i = 0; i < 7; i++)
+        {
+            <div class="calendar-day-header skeleton-line"></div>
+        }
+
+        @for (int i = 0; i < 42; i++)
+        {
+            <div class="calendar-day skeleton-line"
+                 style="height:64px;border-radius:12px;"></div>
+        }
+    </div>
+}
+else if (HasError)
+{
+    <div class="error-state">
+        <h3>Something went wrong</h3>
+        <p>We couldn’t load the calendar.</p>
+
+        <button class="finish-button" @onclick="Retry">
+            Retry
+        </button>
+    </div>
+}
+else
+{
+    <div class="calendar-header">
+        <button class="nav-btn" @onclick="PrevMonth">‹</button>
+
+        <div class="month-title">
+            <h2>@CurrentMonth.ToString("MMMM yyyy")</h2>
+            <div class="month-badge">
+                🏆 @FullyCompletedDays / @DaysInMonth perfect days
+            </div>
         </div>
+
+        <button class="nav-btn" @onclick="NextMonth">›</button>
     </div>
 
-    <button class="nav-btn" @onclick="NextMonth">›</button>
-</div>
+    <div class="calendar-grid">
 
-<div class="calendar-grid">
+        @foreach (var d in DayNames)
+        {
+            <div class="calendar-day-header">@d</div>
+        }
 
-    @foreach (var d in DayNames)
+        @foreach (var cell in CalendarCells)
+        {
+            <div class="calendar-day
+                            @(cell.IsOutside ? "outside" : "")
+                            @(cell.IsToday ? "today" : "")
+                            @(SelectedDate == cell.Date ? "selected" : "")
+                            @(cell.IsFullyCompleted ? "completed-day" : "")"
+                 @onclick="() => SelectDate(cell.Date)">
+
+                <div class="day-number">@cell.Date.Day</div>
+
+                @if (cell.Entries.Any())
+                {
+                    <div class="day-dots">
+                        @foreach (var entry in cell.Entries.Take(3))
+                        {
+                            <span class="day-dot"
+                                  style="background:@entry.Color"></span>
+                        }
+
+                        @if (cell.Entries.Count > 3)
+                        {
+                            <span class="day-dot more">+</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    @if (SelectedDate is not null &&
+             EntriesByDate.TryGetValue(SelectedDate.Value, out var entries))
     {
-        <div class="calendar-day-header">@d</div>
-    }
+        <div class="day-details">
+            <h3>@SelectedDate.Value.ToString("dddd, MMMM d")</h3>
 
-    @foreach (var cell in CalendarCells)
-    {
-        <div class="calendar-day
-                        @(cell.IsOutside ? "outside" : "")
-                        @(cell.IsToday ? "today" : "")
-                        @(cell.IsFullyCompleted ? "completed-day" : "")"
-             @onclick="() => SelectDate(cell.Date)">
-
-            <div class="day-number">@cell.Date.Day</div>
-
-            @if (cell.Entries.Any())
+            @foreach (var entry in entries)
             {
-                <div class="day-dots">
-                    @foreach (var entry in cell.Entries.Take(3))
-                    {
-                        <span class="day-dot"
-                              style="background:@entry.Color"></span>
-                    }
-
-                    @if (cell.Entries.Count > 3)
-                    {
-                        <span class="day-dot more">+</span>
-                    }
+                <div class="day-entry"
+                     style="border-left-color:@entry.Color">
+                    <strong>@entry.PlanName</strong>
+                    <span class="muted">— Day @entry.DayId</span>
                 </div>
             }
         </div>
     }
-</div>
-
-@if (SelectedDate is not null &&
-     EntriesByDate.TryGetValue(SelectedDate.Value, out var entries))
-{
-    <div class="day-details">
-        <h3>@SelectedDate.Value.ToString("dddd, MMMM d")</h3>
-
-        @foreach (var entry in entries)
-        {
-            <div class="day-entry"
-                 style="border-left-color:@entry.Color">
-                <strong>@entry.PlanName</strong>
-                <span class="muted">— Day @entry.DayId</span>
-            </div>
-        }
-    </div>
 }
 
 @code {
     DateTime CurrentMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
     DateOnly Today = DateOnly.FromDateTime(DateTime.Today);
     DateOnly? SelectedDate;
+
+    bool IsLoading = true;
+    bool HasError = false;
 
     int TotalPlans;
 
@@ -92,9 +128,35 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadData();
-        BuildCalendar();
+        await Load();
     }
+
+    async Task Load()
+    {
+        try
+        {
+            IsLoading = true;
+            HasError = false;
+
+            await LoadData();
+            BuildCalendar();
+
+            // ✅ Vandaag automatisch selecteren bij eerste load
+            if (SelectedDate == null)
+                SelectedDate = Today;
+        }
+        catch
+        {
+            HasError = true;
+            CalendarCells.Clear();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    async Task Retry() => await Load();
 
     async Task LoadData()
     {
@@ -129,7 +191,7 @@
         CalendarCells.Clear();
 
         var first = CurrentMonth;
-        int offset = ((int)first.DayOfWeek + 6) % 7; 
+        int offset = ((int)first.DayOfWeek + 6) % 7;
 
         for (int i = -offset; i < 42 - offset; i++)
         {
@@ -139,7 +201,7 @@
             var entries =
                 EntriesByDate.TryGetValue(d, out var e)
                 ? e
-                : new List<CalendarEntryDto>();
+                : new();
 
             CalendarCells.Add(new CalendarCellDto
             {
@@ -171,12 +233,14 @@
     void PrevMonth()
     {
         CurrentMonth = CurrentMonth.AddMonths(-1);
+        SelectedDate = null;
         BuildCalendar();
     }
 
     void NextMonth()
     {
         CurrentMonth = CurrentMonth.AddMonths(1);
+        SelectedDate = null;
         BuildCalendar();
     }
 }

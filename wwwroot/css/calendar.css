@@ -42,13 +42,15 @@
 }
 
 .calendar-day {
-    background: #1c1c1c;
+    background: red;
+    opacity: 0.5;
     border-radius: 12px;
     padding: 6px;
     display: flex;
     flex-direction: column;
     cursor: pointer;
     position: relative;
+    border: 2px solid transparent;
 }
 
     .calendar-day.outside {
@@ -57,11 +59,17 @@
     }
 
     .calendar-day.today {
-        border: 2px solid #ff9800;
+        outline: 1px dashed rgba(255,255,255,0.25);
+    }
+
+    .calendar-day.selected {
+        border-color: #ff9800;
+        background: rgba(255, 152, 0, 0.12);
     }
 
     .calendar-day.completed-day {
-        opacity: 0.5;
+        background: green;
+        opacity: 0.7;
     }
 
 .day-number {
@@ -113,7 +121,6 @@
 }
 
 @media (max-width: 600px) {
-
     .calendar-grid {
         gap: 6px;
     }
