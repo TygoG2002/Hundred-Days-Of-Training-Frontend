@@ -1,11 +1,14 @@
 ﻿namespace HundredDays.Models
 {
-    public class WorkoutSessionDto
+
+    public class WorkoutSessionDetailsDto
     {
         public int SessionId { get; set; }
         public int WorkoutTemplateId { get; set; }
+        public string TemplateName { get; set; } = "";
         public DateTime StartedAt { get; set; }
-        public DateTime? FinishedAt { get; set; }
+
+        public List<WorkoutSessionExerciseDto> Exercises { get; set; } = [];
     }
 
 }

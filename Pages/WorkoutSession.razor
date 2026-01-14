@@ -1,0 +1,121 @@
+﻿@page "/workout-session/{SessionId:int}"
+@inject WorkoutApi Api
+@inject NavigationManager Nav
+
+<button class="back-button" @onclick="GoBack">
+    ← Back
+</button>
+
+@if (Session == null)
+{
+    <div class="sets skeleton">
+        <div class="set skeleton-line"></div>
+        <div class="set skeleton-line"></div>
+        <div class="set skeleton-line"></div>
+    </div>
+}
+else
+{
+    <h1 class="page-title">@CurrentExercise.Name</h1>
+
+    <div class="progress-wrapper">
+        <div class="progress-bar">
+            <div class="progress-fill"
+                 style="width:@ProgressPercent%"></div>
+        </div>
+        <p class="progress-text">
+            Exercise @(currentExerciseIndex + 1)
+            of @Session.Exercises.Count
+        </p>
+    </div>
+
+    <div class="sets">
+        @foreach (var set in CurrentExercise.SetsData)
+        {
+            <div class="set workout-set">
+                <div class="set-left">
+                    <strong>Set @set.SetNumber</strong>
+
+                    @if (set.LastReps != null)
+                    {
+                        <span class="muted">
+                            Last: @set.LastReps × @set.LastWeight?.ToString("0.#") kg
+
+                        </span>
+                    }
+                </div>
+
+                <div class="set-inputs">
+                    <input type="number"
+                           placeholder="Reps"
+                           @bind="set.CurrentReps" />
+
+                    <input type="number"
+                           placeholder="kg"
+                           step="0.5"
+                           @bind="set.CurrentWeight" />
+                </div>
+            </div>
+        }
+    </div>
+
+    <button class="finish-button"
+            @onclick="NextOrFinish">
+        @ButtonText
+    </button>
+}
+
+@code {
+    [Parameter] public int SessionId { get; set; }
+
+    WorkoutSessionDetailsDto? Session;
+    int currentExerciseIndex = 0;
+
+    WorkoutSessionExerciseDto CurrentExercise
+        => Session!.Exercises[currentExerciseIndex];
+
+    int ProgressPercent =>
+        (int)(((currentExerciseIndex + 1) /
+              (double)Session!.Exercises.Count) * 100);
+
+    string ButtonText =>
+        IsLast ? "Finish workout" : "Next exercise";
+
+    bool IsLast =>
+        currentExerciseIndex == Session!.Exercises.Count - 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Session = await Api.GetWorkoutSession(SessionId);
+    }
+
+    async Task NextOrFinish()
+    {
+        if (!IsLast)
+        {
+            currentExerciseIndex++;
+            return;
+        }
+
+        var payload = Session!.Exercises.Select(e =>
+            new FinishWorkoutSessionExerciseDto
+            {
+                WorkoutSessionExerciseId = e.TemplateExerciseId,
+                Sets = e.SetsData.Select(s =>
+                    new FinishWorkoutSessionSetDto
+                    {
+                        SetNumber = s.SetNumber,
+                        Reps = s.CurrentReps,
+                        WeightKg = s.CurrentWeight
+                    }).ToList()
+            }).ToList();
+
+        await Api.FinishWorkoutSession(SessionId, payload);
+        Nav.NavigateTo("/");
+    }
+
+    void GoBack()
+    {
+        Nav.NavigateTo("/");
+    }
+}

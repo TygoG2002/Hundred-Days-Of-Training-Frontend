@@ -102,7 +102,7 @@ public class WorkoutApi
     {
         var response = await _http.PostAsJsonAsync(
             "api/sessions/start",
-            new { workoutTemplateId });
+            workoutTemplateId); 
 
         response.EnsureSuccessStatusCode();
 
@@ -113,6 +113,30 @@ public class WorkoutApi
 
         return result;
     }
+
+
+    public async Task<WorkoutSessionDetailsDto> GetWorkoutSession(int sessionId)
+    {
+        return await SafeGet<WorkoutSessionDetailsDto>(
+            $"api/sessions/{sessionId}");
+    }
+
+    public async Task FinishWorkoutSession(
+      int sessionId,
+      List<FinishWorkoutSessionExerciseDto> exercises)
+    {
+        var response = await _http.PostAsJsonAsync(
+            $"api/sessions/{sessionId}/finish",
+            new
+            {
+                sessionId,
+                exercises
+            });
+
+        response.EnsureSuccessStatusCode();
+    }
+
+
 
     /* DASHBOARD */
 

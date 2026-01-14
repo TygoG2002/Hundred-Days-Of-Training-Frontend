@@ -4,35 +4,43 @@
 @inject WorkoutApi Api
 @inject NavigationManager Nav
 
-
 <h3>@(CurrentTemplate?.Name ?? "")</h3>
 
 <div class="exerciseContainer">
-     @foreach(var item in exercises) {
+    @foreach (var item in exercises ?? [])
+    {
         <div class="exercise">
-     <p> @item.Name </p>
-     <p> @item.Sets X @item.Reps</p>
+            <p>@item.Name</p>
+            <p>@item.Sets x @item.Reps</p>
         </div>
-     }
-     </div>
+    }
+</div>
 
+<button class="finish-button" @onclick="StartWorkout">
+    Start Workout
+</button>
 
-     <button class="finish-button"> Start Workout </button>
 @code {
-
     [Parameter] public int TemplateId { get; set; }
 
-    List<TemplateExerciseDto>? exercises;
-
     public WorkoutTemplatesDto? CurrentTemplate { get; set; }
+    List<TemplateExerciseDto>? exercises;
 
     protected override async Task OnInitializedAsync()
     {
-        List<WorkoutTemplatesDto> list = await Api.GetTemplates();
-        var currentTemplate = list.FirstOrDefault(k => k.Id == TemplateId);
+        var list = await Api.GetTemplates();
+        CurrentTemplate = list.FirstOrDefault(k => k.Id == TemplateId);
 
-        CurrentTemplate = currentTemplate;
+        exercises = CurrentTemplate?.Exercises;
+    }
 
-        exercises = currentTemplate.Exercises;
+    private async Task StartWorkout()
+    {
+        if (CurrentTemplate == null)
+            return;
+
+        var session = await Api.StartWorkoutSession(CurrentTemplate.Id);
+
+        Nav.NavigateTo($"/workout-session/{session.SessionId}");
     }
 }
