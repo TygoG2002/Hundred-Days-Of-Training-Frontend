@@ -5,12 +5,23 @@
 
 @using HundredDays.Components
 
-@if (Session == null)
+@if (IsLoading)
 {
     <div class="sets skeleton">
         <div class="set skeleton-line"></div>
         <div class="set skeleton-line"></div>
         <div class="set skeleton-line"></div>
+    </div>
+}
+else if (HasError)
+{
+    <div class="error-state">
+        <h3>Something went wrong</h3>
+        <p>We couldn’t load this workout session.</p>
+
+        <button class="finish-button" @onclick="Retry">
+            Retry
+        </button>
     </div>
 }
 else
@@ -24,7 +35,7 @@ else
         </div>
         <p class="progress-text">
             Exercise @(currentExerciseIndex + 1)
-            of @Session.Exercises.Count
+            of @Session!.Exercises.Count
         </p>
     </div>
 
@@ -82,6 +93,9 @@ else
     WorkoutSessionDetailsDto? Session;
     int currentExerciseIndex = 0;
 
+    bool IsLoading = true;
+    bool HasError = false;
+
     bool ShowRest = false;
     int RestKey = 0;
     int RestSeconds = 60;
@@ -101,14 +115,36 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Session = await Api.GetWorkoutSession(SessionId);
+        await Load();
+    }
 
-        foreach (var exercise in Session.Exercises)
+    async Task Load()
+    {
+        try
         {
-            foreach (var set in exercise.SetsData)
-                set.Completed = false;
+            IsLoading = true;
+            HasError = false;
+
+            Session = await Api.GetWorkoutSession(SessionId);
+
+            foreach (var exercise in Session.Exercises)
+            {
+                foreach (var set in exercise.SetsData)
+                    set.Completed = false;
+            }
+        }
+        catch
+        {
+            HasError = true;
+            Session = null;
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
+
+    async Task Retry() => await Load();
 
     void OnSetToggle(WorkoutSessionSetDto set, bool completed)
     {
@@ -117,7 +153,6 @@ else
         if (!completed)
             return;
 
-        // tijdelijke simpele restlogica
         RestSeconds = CurrentExercise.TargetReps <= 5 ? 120 : 60;
 
         RestKey++;
