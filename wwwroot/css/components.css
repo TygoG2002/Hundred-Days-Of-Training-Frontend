@@ -63,15 +63,27 @@
 
 .card-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: 8px;
 }
 
+
 .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    height: 22px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    border-radius: 999px;
     background: rgba(255, 152, 0, 0.18);
     color: #ffb74d;
-    font-weight: 700;
 }
+
 .card-progress {
     height: 4px;
     background: #2a2a2a;
@@ -453,6 +465,12 @@ nav {
         padding: 16px;
         min-height: 96px;
         border-radius: 16px;
+    }
+
+    .badge {
+        font-size: 11px;
+        height: 20px;
+        padding: 3px 8px;
     }
 
         .card h3 {
