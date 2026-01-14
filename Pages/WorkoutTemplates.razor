@@ -4,7 +4,14 @@
 @inject WorkoutApi Api
 @inject NavigationManager Nav
 
-<h3>Workout Templates</h3>
+<div class="Template-Header">
+    <h3>Workout Templates</h3>
+    
+    <button class="add-template" onclick="">
+        <h1> + </h1>
+    </button>
+
+</div>
 
 <div class="grid"> 
     @foreach(var item in list)
