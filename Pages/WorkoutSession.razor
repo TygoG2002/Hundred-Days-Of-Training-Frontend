@@ -2,6 +2,8 @@
 @inject WorkoutApi Api
 @inject NavigationManager Nav
 
+@using HundredDays.Components
+
 <button class="back-button" @onclick="GoBack">
     ← Back
 </button>
@@ -40,7 +42,6 @@ else
                     {
                         <span class="muted">
                             Last: @set.LastReps × @set.LastWeight?.ToString("0.#") kg
-
                         </span>
                     }
                 </div>
@@ -54,6 +55,11 @@ else
                            placeholder="kg"
                            step="0.5"
                            @bind="set.CurrentWeight" />
+
+                    <button class="set-done"
+                            @onclick="() => OnSetDone(set)">
+                        Done
+                    </button>
                 </div>
             </div>
         }
@@ -65,11 +71,22 @@ else
     </button>
 }
 
+@if (ShowRest)
+{
+    <RestTImer @key="RestKey"
+               Duration="@RestSeconds"
+               OnFinished="OnRestFinished" />
+}
+
 @code {
     [Parameter] public int SessionId { get; set; }
 
     WorkoutSessionDetailsDto? Session;
     int currentExerciseIndex = 0;
+
+    bool ShowRest = false;
+    int RestKey = 0;
+    int RestSeconds = 60;
 
     WorkoutSessionExerciseDto CurrentExercise
         => Session!.Exercises[currentExerciseIndex];
@@ -78,20 +95,38 @@ else
         (int)(((currentExerciseIndex + 1) /
               (double)Session!.Exercises.Count) * 100);
 
-    string ButtonText =>
-        IsLast ? "Finish workout" : "Next exercise";
-
-    bool IsLast =>
+    bool IsLastExercise =>
         currentExerciseIndex == Session!.Exercises.Count - 1;
+
+    string ButtonText =>
+        IsLastExercise ? "Finish workout" : "Next exercise";
 
     protected override async Task OnInitializedAsync()
     {
         Session = await Api.GetWorkoutSession(SessionId);
     }
 
+    void OnSetDone(WorkoutSessionSetDto set)
+    {
+
+        
+        //rest hardcoded for now. im gonna change this later
+        RestSeconds = CurrentExercise.TargetReps <= 5 ? 120 : 60;
+
+        RestKey++;
+        ShowRest = true;
+    }
+
+    Task OnRestFinished()
+    {
+        ShowRest = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
     async Task NextOrFinish()
     {
-        if (!IsLast)
+        if (!IsLastExercise)
         {
             currentExerciseIndex++;
             return;

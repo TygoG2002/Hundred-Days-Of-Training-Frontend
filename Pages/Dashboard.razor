@@ -26,7 +26,7 @@
             </button>
         </div>
     }
-    else if (!TodayWorkouts!.Any() && AllCompleted)
+    else if (!TodayPlans.Any() && !TodayTemplates.Any() && AllCompleted)
     {
         <div class="empty-state celebration">
             <h2>🏆 You did it.</h2>
@@ -34,7 +34,7 @@
             <p class="muted">100 days. No excuses. Respect. 💪</p>
         </div>
     }
-    else if (!TodayWorkouts!.Any())
+    else if (!TodayPlans.Any() && !TodayTemplates.Any())
     {
         <div class="empty-state">
             <p>🎉 You’re all done for today.</p>
@@ -43,25 +43,50 @@
     }
     else
     {
-        <h3 class="section-title">Still to do today</h3>
+        @if (TodayPlans.Any())
+        @if (TodayPlans.Any())
+        {
+            <h3 class="section-title">Still to do today</h3>
 
-        <div class="grid">
-            @foreach (var workout in TodayWorkouts!)
-            {
-                <div class="card card-today" @onclick="() => Go(workout.Id)">
-                    <div class="card-header">
-                        <h3>@workout.Name</h3>
-                        <span class="badge">Today</span>
+            <div class="grid">
+                @foreach (var workout in TodayPlans)
+                {
+                    <div class="card card-today"
+                         @onclick="() => Go(workout.Id)">
+                        <div class="card-header">
+                            <h3>@workout.Name</h3>
+                            <span class="badge">Today</span>
+                        </div>
+
+                        <p class="card-meta">
+                            Day @(workout.CompletedDays + 1) of @workout.TotalDays
+                        </p>
+
+                        <p class="plan-cta">Start workout →</p>
                     </div>
+                }
+            </div>
+        }
 
-                    <p class="card-meta">
-                        Day @(workout.CompletedDays + 1) of @workout.TotalDays
-                    </p>
+        @if (TodayTemplates.Any())
+        {
+            <h3 class="section-title">Scheduled workout</h3>
 
-                    <p class="plan-cta">Start workout →</p>
-                </div>
-            }
-        </div>
+            <div class="grid">
+                @foreach (var template in TodayTemplates)
+                {
+                    <div class="card card-today"
+                         @onclick="() => StartTemplate(template.TemplateId)">
+                        <div class="card-header">
+                            <h3>@template.Name</h3>
+                            <span class="badge">Today</span>
+                        </div>
+
+                        <p class="plan-cta">Start workout →</p>
+                    </div>
+                }
+            </div>
+        }
     }
 </section>
 
@@ -79,24 +104,32 @@
                 <span class="status-text">Completed today</span>
             </div>
         }
-
         else
         {
             <button class="finish-button outline"
                     @onclick="CompleteDiscipline">
-            I did it </button>
+                I did it
+            </button>
         }
     </div>
 </section>
 
 @code {
-    List<PlanOverviewDto>? TodayWorkouts;
+    TodayDashboardDto? Today;
 
     bool IsLoading = true;
     bool HasError = false;
     bool AllCompleted = false;
 
     bool DisciplineCompleted;
+
+
+    List<PlanOverviewDto> TodayPlans =>
+        Today?.Plans ?? new();
+
+    List<TodayTemplateDto> TodayTemplates =>
+        Today?.Templates ?? new();
+
 
     string Greeting
     {
@@ -114,60 +147,43 @@
         }
     }
 
-    string Motivation
-    {
-        get
+    string Motivation =>
+        DateTime.Now.DayOfYear switch
         {
-            return DateTime.Now.DayOfYear switch
-            {
-                var d when d % 5 == 0 => "Consistency beats motivation.",
-                var d when d % 5 == 1 => "Just showing up is enough.",
-                var d when d % 5 == 2 => "One workout closer to your goal.",
-                var d when d % 5 == 3 => "Don’t break the chain.",
-                _ => "Small effort. Big results."
-            };
-        }
-    }
+            var d when d % 5 == 0 => "Consistency beats motivation.",
+            var d when d % 5 == 1 => "Just showing up is enough.",
+            var d when d % 5 == 2 => "One workout closer to your goal.",
+            var d when d % 5 == 3 => "Don’t break the chain.",
+            _ => "Small effort. Big results."
+        };
 
-    string DisciplineTitle
-    {
-        get
+    string DisciplineTitle =>
+        (DateTime.Today.DayOfYear % 8) switch
         {
-            return (DateTime.Today.DayOfYear % 8) switch
-            {
-                0 => "Train",
-                1 => "Quads of Stone",
-                2 => "Hang or Fall",
-                3 => "Still in the Fire",
-                4 => "Earn the Exit",
-                5 => "No Dopamine Until Earned",
-                6 => "Cold Exposure",
-                7 => "Read Without Escape",
-                _ => "Discipline"
-            };
-        }
-    }
+            0 => "Train",
+            1 => "Quads of Stone",
+            2 => "Hang or Fall",
+            3 => "Still in the Fire",
+            4 => "Earn the Exit",
+            5 => "No Dopamine Until Earned",
+            6 => "Cold Exposure",
+            7 => "Read Without Escape",
+            _ => "Discipline"
+        };
 
-    string DisciplineDescription
-    {
-        get
+    string DisciplineDescription =>
+        (DateTime.Today.DayOfYear % 8) switch
         {
-            return (DateTime.Today.DayOfYear % 8) switch
-            {
-                0 => "Do all Daily workout plans one after the other.",
-                1 => "Wall sit 1 minute total. Every stand-up adds 20 squats.",
-                2 => "Dead hang 2 minutes total. Drop = 20 push-ups. No straps.",
-                3 => "Deep squat hold 1 minutes. Heels down. No movement. No distractions.",
-                4 => "2 rounds: 10 burpees, 10 push-ups, 10 squats. No rest.",
-                5 => "First 4 hours of the day: no phone scrolling, no sugar, no entertainment.",
-                6 => "Cold shower 3 minutes. No warm finish.",
-                7 => "Read 10 pages of a difficult book. No music. No phone.",
-                _ => "Do something hard."
-            };
-        }
-    }
-
-
+            0 => "Do all Daily workout plans one after the other.",
+            1 => "Wall sit 1 minute total. Every stand-up adds 20 squats.",
+            2 => "Dead hang 2 minutes total. Drop = 20 push-ups. No straps.",
+            3 => "Deep squat hold 1 minutes. Heels down. No movement. No distractions.",
+            4 => "2 rounds: 10 burpees, 10 push-ups, 10 squats. No rest.",
+            5 => "First 4 hours of the day: no phone scrolling, no sugar, no entertainment.",
+            6 => "Cold shower 3 minutes. No warm finish.",
+            7 => "Read 10 pages of a difficult book. No music. No phone.",
+            _ => "Do something hard."
+        };
 
 
     protected override async Task OnInitializedAsync()
@@ -186,7 +202,7 @@
             IsLoading = true;
             HasError = false;
 
-            TodayWorkouts = await Api.GetTodayWorkouts();
+            Today = await Api.GetTodayWorkouts();
 
             var plans = await Api.GetPlansOverview();
             AllCompleted = plans.Any() &&
@@ -195,7 +211,7 @@
         catch
         {
             HasError = true;
-            TodayWorkouts = new();
+            Today = null;
             AllCompleted = false;
         }
         finally
@@ -204,18 +220,23 @@
         }
     }
 
-    async Task Retry()
-    {
-        await Load();
-    }
+    async Task Retry() => await Load();
 
-    void Go(int id)
+
+    void Go(int planId)
     {
         var completedDays =
-            TodayWorkouts!.First(p => p.Id == id).CompletedDays;
+            TodayPlans.First(p => p.Id == planId).CompletedDays;
 
         Nav.NavigateTo(
-            $"/plan/{id}/day/{completedDays + 1}?completed={completedDays}");
+            $"/plan/{planId}/day/{completedDays + 1}?completed={completedDays}");
+    }
+
+    async Task StartTemplate(int templateId)
+    {
+        var session = await Api.StartWorkoutSession(templateId);
+
+        Nav.NavigateTo($"/Templates/{templateId}");
     }
 
     async Task CompleteDiscipline()

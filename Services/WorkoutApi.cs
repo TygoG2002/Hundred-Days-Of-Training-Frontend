@@ -140,12 +140,13 @@ public class WorkoutApi
 
     /* DASHBOARD */
 
-    public async Task<List<PlanOverviewDto>> GetTodayWorkouts()
+    public async Task<TodayDashboardDto> GetTodayWorkouts()
     {
-        return await SafeGet<List<PlanOverviewDto>>(
+        return await SafeGet<TodayDashboardDto>(
             "api/dashboard/today");
     }
-    
+
+
 
     /* CACHE INVALIDATION */
 

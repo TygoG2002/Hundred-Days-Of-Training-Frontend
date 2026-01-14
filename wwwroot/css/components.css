@@ -33,11 +33,29 @@
 }
 
 .section-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
+    margin: 28px 0 12px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: #eaeaea;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
+    .section-title::before {
+        content: "";
+        width: 6px;
+        height: 18px;
+        border-radius: 4px;
+        background: #ff9800;
+        display: inline-block;
+    }
+.dashboard-section.danger .section-title::before {
+    background: #ff5722;
+}
+
 
 .card-today {
     border-left: 3px solid #ff9800;
@@ -50,13 +68,23 @@
 }
 
 .badge {
-    background: rgba(255, 152, 0, 0.15);
-    color: #ff9800;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
+    background: rgba(255, 152, 0, 0.18);
+    color: #ffb74d;
+    font-weight: 700;
 }
+.card-progress {
+    height: 4px;
+    background: #2a2a2a;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.card-progress-fill {
+    height: 100%;
+    background: #ff9800;
+}
+
 
 .card-meta {
     margin-top: 6px;
@@ -101,10 +129,11 @@
 }
 
 .plan-cta {
-    margin-top: 10px;
+    margin-top: 12px;
     font-size: 14px;
     color: #ff9800;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.02em;
 }
 
 
@@ -418,6 +447,19 @@ nav {
         padding-bottom: 96px;
     }
 }
+
+@media (max-width: 480px) {
+    .card {
+        padding: 16px;
+        min-height: 96px;
+        border-radius: 16px;
+    }
+
+        .card h3 {
+            font-size: 17px;
+        }
+}
+
 
 @media (min-width: 769px) {
     .sidebar-nav {
