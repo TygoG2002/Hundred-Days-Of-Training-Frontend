@@ -269,17 +269,6 @@
     };
 </script>
 
-
-
-
-
-
-
-
-
-
-
-
 @code {
     TodayDashboardDto? Today;
 
@@ -296,8 +285,8 @@
     List<TodayTemplateDto> TodayTemplates =>
         Today?.Templates ?? new();
 
-    List<WorkoutTemplatesDto> allTemplates; 
-    List<WeekPlanningDto> DayOfWeeks;
+    List<WorkoutTemplatesDto> allTemplates = new();
+    List<WeekPlanningDto> DayOfWeeks = new();
 
     readonly (int Day, string Name)[] WeekDays =
 {
@@ -366,14 +355,25 @@
 
     DotNetObjectReference<Dashboard>? _dotNetRef;
 
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             _dotNetRef = DotNetObjectReference.Create(this);
+
+            await Load();
+            await InvokeAsync(StateHasChanged);
+        }
+
+        if (!IsLoading && !HasError)
+        {
             await JS.InvokeVoidAsync("initCardDrag", _dotNetRef);
         }
     }
+
+
 
     public void Dispose()
     {
@@ -395,12 +395,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await Load();
-
         var key = $"discipline-{DateTime.Today:yyyy-MM-dd}";
         DisciplineCompleted =
             await JS.InvokeAsync<string>("localStorage.getItem", key) == "done";
     }
+
 
     async Task Load()
     {
