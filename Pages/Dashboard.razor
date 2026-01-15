@@ -5,7 +5,6 @@
 
 <h1 class="page-title">Dashboard</h1>
 <p class="page-subtitle">@Greeting</p>
-
 <section class="dashboard-section">
 
     @if (IsLoading)
@@ -88,6 +87,55 @@
     }
 </section>
 
+<h3 class="section-title">Plan your workouts</h3>
+
+<section class="dashboard-section">
+    <div class="days-grid">
+
+        <div class="day-col" data-day="Monday">
+            <span class="dayofweekitem">Monday</span>
+            <div class="card-days" draggable="true">Push workout</div>
+        </div>
+
+        <div class="day-col" data-day="Tuesday">
+            <span class="dayofweekitem">Tuesday</span>
+            <div class="card-days" draggable="true">Pull workout</div>
+        </div>
+
+        <div class="day-col" data-day="Wednesday">
+            <span class="dayofweekitem">Wednesday</span>
+            <div class="card-days" draggable="true">Pull workout</div>
+        </div>
+
+        <div class="day-col" data-day="Thursday">
+            <span class="dayofweekitem">Thursday</span>
+            <div class="card-days" draggable="true">Pull workout</div>
+        </div>
+
+        <div class="day-col" data-day="Friday">
+            <span class="dayofweekitem">Friday</span>
+            <div class="card-days" draggable="true">Pull workout</div>
+
+        </div>
+
+        <div class="day-col" data-day="Saturday">
+            <span class="dayofweekitem">Saturday</span>
+            <div class="card-days" draggable="true">Pull workout</div>
+
+        </div>
+
+        <div class="day-col" data-day="Sunday">
+            <span class="dayofweekitem">Sunday</span>
+            <div class="card-days" draggable="true">Pull workout</div>
+
+        </div>
+
+    </div>
+</section>
+
+
+
+
 <section class="dashboard-section danger">
     <h3 class="section-title">Daily Discipline</h3>
 
@@ -112,6 +160,66 @@
     </div>
 </section>
 
+
+<script>
+
+        window.initCardDrag = () => {
+        let draggedCard = null;
+
+        document.querySelectorAll(".card-days").forEach(card => {
+            if (card.dataset.bound) return;
+            card.dataset.bound = "true";
+
+            card.addEventListener("dragstart", () => {
+                draggedCard = card;
+                card.classList.add("dragging");
+            });
+
+            card.addEventListener("dragend", () => {
+                card.classList.remove("dragging");
+                draggedCard = null;
+            });
+        });
+
+        document.querySelectorAll(".day-col").forEach(col => {
+            if (col.dataset.bound) return;
+            col.dataset.bound = "true";
+
+            col.addEventListener("dragover", e => {
+                e.preventDefault();
+                col.classList.add("drag-over");
+            });
+
+            col.addEventListener("dragleave", () => {
+                col.classList.remove("drag-over");
+            });
+
+            col.addEventListener("drop", e => {
+                e.preventDefault();
+                col.classList.remove("drag-over");
+
+                if (!draggedCard) return;
+
+                const sourceCol = draggedCard.closest(".day-col");
+                const targetCard = col.querySelector(".card-days");
+
+                if (targetCard && sourceCol) {
+                    sourceCol.appendChild(targetCard);
+                    col.appendChild(draggedCard);
+                }
+                else {
+                    col.appendChild(draggedCard);
+                }
+
+                console.log(
+                    `Swap/move done → ${col.dataset.day}`
+                );
+            });
+        });
+    };
+
+
+</script>
 @code {
     TodayDashboardDto? Today;
 
@@ -128,6 +236,7 @@
     List<TodayTemplateDto> TodayTemplates =>
         Today?.Templates ?? new();
 
+ 
 
     string Greeting
     {
@@ -183,6 +292,13 @@
             _ => "Do something hard."
         };
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initCardDrag");
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

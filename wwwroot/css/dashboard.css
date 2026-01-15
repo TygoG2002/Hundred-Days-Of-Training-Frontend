@@ -1,0 +1,40 @@
+﻿.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 14px;
+}
+
+.day-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dayofweekitem {
+    text-align: center;
+    color: white;
+    font-size: 13px;
+}
+
+.card-days {
+    background: #1c1c1c;
+    border-radius: 18px;
+    min-height: 110px;
+    margin-top: 20px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04);
+    transition: opacity 0.15s;
+}
+
+    .card-days.dragging {
+        opacity: 0.4;
+        cursor: grabbing;
+    }
+
+.day-col.drag-over {
+    outline: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 14px;
+}
