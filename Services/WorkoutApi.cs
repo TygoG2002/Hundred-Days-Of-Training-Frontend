@@ -146,6 +146,25 @@ public class WorkoutApi
             "api/dashboard/today");
     }
 
+    public async Task<List<WeekPlanningDto>> GetDayOfWeekPlanning()
+    {
+        return await SafeGet<List<WeekPlanningDto>>(
+            "api/dashboard/week");
+    }
+
+    public async Task UpdateWeekPlanning(int id, int dayOfWeek)
+    {
+        var response = await _http.PutAsJsonAsync(
+            "api/dashboard/updatePlanning",
+            new
+            {
+                id,
+                dayOfWeek
+            });
+
+        response.EnsureSuccessStatusCode();
+    }
+
 
 
     /* CACHE INVALIDATION */
