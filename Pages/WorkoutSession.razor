@@ -42,7 +42,12 @@ else
     <div class="sets">
         @foreach (var set in CurrentExercise.SetsData)
         {
-            <label class="set workout-set @(set.Completed ? "completed" : "")">
+            var isActive = IsActiveSet(set);
+
+            <label class="set workout-set
+                                  @(set.Completed ? "completed" : "")
+                                  @(isActive ? "active" : "")">
+
                 <div class="set-left">
                     <strong>Set @set.SetNumber</strong>
 
@@ -58,7 +63,8 @@ else
                     <input type="number"
                            placeholder="Reps"
                            @bind="set.CurrentReps"
-                           disabled="@set.Completed" />
+                           disabled="@set.Completed"
+                           autofocus="@isActive" />
 
                     <input type="number"
                            placeholder="kg"
@@ -75,6 +81,7 @@ else
     </div>
 
     <button class="finish-button"
+            disabled="@(!AllSetsCompleted)"
             @onclick="NextOrFinish">
         @ButtonText
     </button>
@@ -113,6 +120,9 @@ else
     string ButtonText =>
         IsLastExercise ? "Finish workout" : "Next exercise";
 
+    bool AllSetsCompleted =>
+        CurrentExercise.SetsData.All(s => s.Completed);
+
     protected override async Task OnInitializedAsync()
     {
         await Load();
@@ -146,6 +156,17 @@ else
 
     async Task Retry() => await Load();
 
+    bool IsActiveSet(WorkoutSessionSetDto set)
+    {
+        if (set.Completed)
+            return false;
+
+        var next = CurrentExercise.SetsData
+            .FirstOrDefault(s => !s.Completed);
+
+        return next == set;
+    }
+
     void OnSetToggle(WorkoutSessionSetDto set, bool completed)
     {
         set.Completed = completed;
@@ -168,6 +189,9 @@ else
 
     async Task NextOrFinish()
     {
+        if (!AllSetsCompleted)
+            return;
+
         if (!IsLastExercise)
         {
             currentExerciseIndex++;

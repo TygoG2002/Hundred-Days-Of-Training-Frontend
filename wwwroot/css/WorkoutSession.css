@@ -1,4 +1,5 @@
-﻿
+﻿/* SETS LIST */
+
 .sets {
     display: flex;
     flex-direction: column;
@@ -6,7 +7,11 @@
     margin-top: 20px;
 }
 
+
+/* SET ROW */
+
 .set.workout-set {
+    position: relative;
     display: grid;
     grid-template-columns: 1fr auto 24px;
     align-items: center;
@@ -15,19 +20,19 @@
     padding: 14px 16px;
     border-radius: 14px;
     min-height: 64px;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
-
 
     .set.workout-set:active {
         transform: none;
     }
 
-  
     .set.workout-set:hover {
         background: #202020;
     }
 
+
+/* LEFT SIDE */
 
 .set-left {
     display: flex;
@@ -47,6 +52,8 @@
     }
 
 
+/* INPUTS */
+
 .set-inputs {
     display: flex;
     gap: 8px;
@@ -61,7 +68,7 @@
         color: #fff;
         font-size: 14px;
         text-align: center;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
     }
 
         .set-inputs input::placeholder {
@@ -75,6 +82,8 @@
         }
 
 
+/* CHECKBOX */
+
 .set.workout-set input[type="checkbox"] {
     width: 22px;
     height: 22px;
@@ -84,9 +93,29 @@
 }
 
 
+/* ACTIVE SET */
+
+.set.workout-set.active {
+    background: linear-gradient( 180deg, rgba(255,152,0,0.12), rgba(255,152,0,0.04) );
+    box-shadow: inset 0 0 0 1px rgba(255,152,0,0.55), 0 8px 24px rgba(0,0,0,0.6);
+}
+
+    .set.workout-set.active strong {
+        color: #ffb74d;
+    }
+
+    .set.workout-set.active .set-inputs input {
+        border-color: #ff9800;
+        box-shadow: 0 0 0 1px rgba(255,152,0,0.25);
+    }
+
+
+/* COMPLETED SET */
+
 .set.workout-set.completed {
-    background: #181818;
-    border: 1px solid #2a2a2a;
+    background: #151515;
+    border: 1px solid #262626;
+    animation: setComplete 0.18s ease-out;
 }
 
     .set.workout-set.completed strong {
@@ -102,6 +131,32 @@
         pointer-events: none;
     }
 
+    .set.workout-set.completed::after {
+        content: "✓";
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #4caf50;
+        font-size: 16px;
+        opacity: 0.7;
+    }
+
+
+/* COMPLETION MICRO-ANIMATION */
+
+@keyframes setComplete {
+    from {
+        transform: scale(1.02);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+
+/* PROGRESS */
 
 .progress-wrapper {
     margin-top: 12px;
@@ -117,8 +172,9 @@
 
 .progress-fill {
     height: 100%;
-    background: #ff9800;
+    background: linear-gradient( 90deg, #ff9800, #ffb74d );
     transition: width 0.3s ease;
+    box-shadow: 0 0 8px rgba(255,152,0,0.35);
 }
 
 .progress-text {
@@ -127,6 +183,8 @@
     color: #9a9a9a;
 }
 
+
+/* FINISH / NEXT BUTTON */
 
 .finish-button {
     margin-top: 28px;
@@ -138,7 +196,7 @@
     border-radius: 6px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
     .finish-button:hover {
@@ -148,4 +206,11 @@
 
     .finish-button:active {
         background: #000;
+    }
+
+    .finish-button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        background: #0f0f0f;
+        border-color: #1f1f1f;
     }

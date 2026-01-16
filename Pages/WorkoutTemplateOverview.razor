@@ -21,7 +21,9 @@
     }
 </div>
 
-<button class="finish-button" @onclick="StartWorkout">
+<button class="finish-button"
+        disabled="@IsStarting"
+        @onclick="StartWorkout">
     Start Workout
 </button>
 
@@ -39,15 +41,19 @@
         exercises = CurrentTemplate?.Exercises;
     }
 
+    bool IsStarting = false;
+
     private async Task StartWorkout()
     {
-        if (CurrentTemplate == null)
+        if (IsStarting || CurrentTemplate == null)
             return;
 
-        var session = await Api.StartWorkoutSession(CurrentTemplate.Id);
+        IsStarting = true;
 
+        var session = await Api.StartWorkoutSession(CurrentTemplate.Id);
         Nav.NavigateTo($"/workout-session/{session.SessionId}");
     }
+
 
     void GoBack()
     {
