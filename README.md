@@ -54,17 +54,22 @@ This keeps the app responsive even on mobile devices and when hosted on low-powe
 The application runs inside a private network and cannot be accessed publicly.  
 The screenshots below show the core functionality and user experience.
 
-### Workout plans overview
+### Dashboard
 
-<img width="559" height="756" alt="image" src="https://github.com/user-attachments/assets/2c06e917-5586-48f9-9619-54af89ac7315" />
+<img width="946" height="2048" alt="image" src="https://github.com/user-attachments/assets/378fdb6d-d8bb-45c4-ac93-f32537528c4d" />
 
-### Days of selected plan
 
-<img width="710" height="948" alt="image" src="https://github.com/user-attachments/assets/21d22f19-5cb5-471f-be6e-d9bc9a018474" />
+### Workout Templates
 
-### Workout mode
+<img width="946" height="2048" alt="image" src="https://github.com/user-attachments/assets/3a123e06-10cb-4f84-80f0-a5e180ad2dbf" />
 
-<img width="677" height="793" alt="image" src="https://github.com/user-attachments/assets/526d586e-71ae-4062-a1e4-bb98bbedb73d" />
+### 100 Day Programs
+
+<img width="946" height="2048" alt="image" src="https://github.com/user-attachments/assets/9a4493b6-4ab7-4563-ba9d-bb148cfda486" />
+
+### Calendar
+
+<img width="946" height="2048" alt="image" src="https://github.com/user-attachments/assets/b4e4d2b6-d0d6-478a-8e44-587386a2a0eb" />
 
 ---
 
