@@ -1,4 +1,81 @@
-﻿/* SETS LIST */
+﻿/* base page */
+
+body {
+    background: #0b0b0b;
+    color: #f5f5f5;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-top: 4px;
+}
+
+.muted {
+    color: #9a9a9a;
+}
+
+/* session header */
+
+.session-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.stop-button {
+    background: transparent;
+    border: 1px solid #333;
+    color: #ffb74d;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+    .stop-button:hover {
+        background: rgba(255,183,77,0.08);
+        border-color: #ffb74d;
+    }
+
+/* exercise target */
+
+.exercise-target {
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+/* progress */
+
+.progress-wrapper {
+    margin-top: 10px;
+    margin-bottom: 16px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 5px;
+    background: #1f1f1f;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff9800, #ffb74d);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #9a9a9a;
+}
+
+/* sets list */
 
 .sets {
     display: flex;
@@ -7,32 +84,31 @@
     margin-top: 20px;
 }
 
-
-/* SET ROW */
+/* set card */
 
 .set.workout-set {
     position: relative;
     display: grid;
-    grid-template-columns: 1fr auto 24px;
+    grid-template-columns: 1fr auto 32px;
     align-items: center;
     gap: 14px;
-    background: #1c1c1c;
+    background: #191919;
     padding: 14px 16px;
     border-radius: 14px;
     min-height: 64px;
-    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    border: 1px solid #242424; /* altijd aanwezig */
+    box-sizing: border-box; /* voorkomt resize */
+
+    transition: background 0.15s ease;
 }
 
-    .set.workout-set:active {
-        transform: none;
-    }
 
     .set.workout-set:hover {
-        background: #202020;
+        background: #1e1e1e;
+        border-color: #2e2e2e;
     }
 
-
-/* LEFT SIDE */
+/* set left */
 
 .set-left {
     display: flex;
@@ -42,17 +118,15 @@
 
     .set-left strong {
         font-size: 15px;
-        font-weight: 600;
+        font-weight: 700;
         color: #fff;
     }
 
     .set-left .muted {
         font-size: 13px;
-        color: #9a9a9a;
     }
 
-
-/* INPUTS */
+/* inputs */
 
 .set-inputs {
     display: flex;
@@ -61,43 +135,50 @@
 
     .set-inputs input {
         width: 70px;
-        background: #141414;
-        border: 1px solid #222;
+        background: #121212;
+        border: 1px solid #2a2a2a;
         border-radius: 10px;
         padding: 8px;
         color: #fff;
         font-size: 14px;
+        font-weight: 600;
         text-align: center;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
         .set-inputs input::placeholder {
             color: #666;
         }
 
+        .set-inputs input:hover:not(:disabled) {
+            border-color: #3a3a3a;
+        }
+
         .set-inputs input:focus {
             outline: none;
             border-color: #ff9800;
-            box-shadow: 0 0 0 1px rgba(255,152,0,0.3);
+            box-shadow: 0 0 0 1px rgba(255,152,0,0.35);
         }
 
+        .set-inputs input:disabled {
+            opacity: 0.45;
+        }
 
-/* CHECKBOX */
+/* checkbox */
 
 .set.workout-set input[type="checkbox"] {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     accent-color: #ff9800;
     cursor: pointer;
     justify-self: end;
 }
 
-
-/* ACTIVE SET */
+/* active set */
 
 .set.workout-set.active {
-    background: linear-gradient( 180deg, rgba(255,152,0,0.12), rgba(255,152,0,0.04) );
-    box-shadow: inset 0 0 0 1px rgba(255,152,0,0.55), 0 8px 24px rgba(0,0,0,0.6);
+    background: linear-gradient( 180deg, rgba(255,152,0,0.14), rgba(255,152,0,0.04) );
+    border-color: rgba(255,152,0,0.5);
 }
 
     .set.workout-set.active strong {
@@ -106,28 +187,21 @@
 
     .set.workout-set.active .set-inputs input {
         border-color: #ff9800;
-        box-shadow: 0 0 0 1px rgba(255,152,0,0.25);
     }
 
-
-/* COMPLETED SET */
+/* completed set */
 
 .set.workout-set.completed {
-    background: #151515;
-    border: 1px solid #262626;
-    animation: setComplete 0.18s ease-out;
+    background: #141414;
+    border-color: #262626;
 }
 
-    .set.workout-set.completed strong {
+    .set.workout-set.completed strong,
+    .set.workout-set.completed .muted {
         opacity: 0.6;
     }
 
-    .set.workout-set.completed .muted {
-        opacity: 0.5;
-    }
-
     .set.workout-set.completed .set-inputs input {
-        opacity: 0.5;
         pointer-events: none;
     }
 
@@ -138,79 +212,102 @@
         top: 50%;
         transform: translateY(-50%);
         color: #4caf50;
-        font-size: 16px;
+        font-size: 15px;
         opacity: 0.7;
     }
 
+/* exercise navigation */
 
-/* COMPLETION MICRO-ANIMATION */
-
-@keyframes setComplete {
-    from {
-        transform: scale(1.02);
-    }
-
-    to {
-        transform: scale(1);
-    }
-}
-
-
-/* PROGRESS */
-
-.progress-wrapper {
-    margin-top: 12px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 6px;
-    background: #2a2a2a;
-    border-radius: 999px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient( 90deg, #ff9800, #ffb74d );
-    transition: width 0.3s ease;
-    box-shadow: 0 0 8px rgba(255,152,0,0.35);
-}
-
-.progress-text {
-    margin-top: 6px;
-    font-size: 13px;
-    color: #9a9a9a;
-}
-
-
-/* FINISH / NEXT BUTTON */
-
-.finish-button {
+.exercise-navigation {
+    display: flex;
+    gap: 12px;
     margin-top: 28px;
-    background: #111;
-    color: #f5f5f5;
-    font-weight: 700;
-    border: 1px solid #2a2a2a;
-    padding: 14px 20px;
-    border-radius: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
-    .finish-button:hover {
-        background: #1a1a1a;
+/* previous / next */
+
+.nav-button {
+    flex: 1;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #fff;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+    .nav-button:hover {
+        background: #222;
         border-color: #444;
     }
 
-    .finish-button:active {
-        background: #000;
+    .nav-button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
+
+/* finish button */
+
+.finish-button {
+    flex: 1;
+    font-weight: 800;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
 
     .finish-button:disabled {
         opacity: 0.45;
         cursor: not-allowed;
-        background: #0f0f0f;
-        border-color: #1f1f1f;
+    }
+
+/* confirm stop dialog */
+
+.confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.confirm-modal {
+    background: #111;
+    color: #fff;
+    padding: 24px;
+    border-radius: 16px;
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+    .confirm-actions button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 700;
+    }
+
+    .confirm-actions .secondary {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        color: #fff;
+    }
+
+    .confirm-actions .danger {
+        background: #b3261e;
+        border: none;
+        color: #fff;
     }

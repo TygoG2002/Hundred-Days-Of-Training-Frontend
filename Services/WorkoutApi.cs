@@ -136,6 +136,14 @@ public class WorkoutApi
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task DeleteWorkoutSession(int sessionId)
+    {
+        var response = await _http.DeleteAsync(
+            $"api/sessions/delete/{sessionId}");
+
+        response.EnsureSuccessStatusCode();
+    }
+
 
 
     /* DASHBOARD */

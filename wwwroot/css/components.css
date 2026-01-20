@@ -168,9 +168,7 @@
     min-height: 56px;
 }
 
-    .set:active {
-        transform: scale(0.98);
-    }
+   
 
     .set input[type="checkbox"] {
         width: 20px;

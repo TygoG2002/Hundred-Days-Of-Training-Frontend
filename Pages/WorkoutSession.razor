@@ -13,7 +13,7 @@
         <div class="set skeleton-line"></div>
     </div>
 }
-else if (HasError)
+else if (HasError || Session == null || CurrentExercise == null)
 {
     <div class="error-state">
         <h3>Something went wrong</h3>
@@ -26,21 +26,26 @@ else if (HasError)
 }
 else
 {
+    <div class="session-header">
+        <button class="stop-button"
+                title="Stop workout"
+                @onclick="OpenStopConfirm">
+            Stop workout
+        </button>
+    </div>
+
     <h1 class="page-title">@CurrentExercise.Name</h1>
 
     <p class="exercise-target muted">
         Target: @CurrentExercise.Sets × @CurrentExercise.TargetReps reps
     </p>
 
-
     <div class="progress-wrapper">
         <div class="progress-bar">
-            <div class="progress-fill"
-                 style="width:@ProgressPercent%"></div>
+            <div class="progress-fill" style="width:@ProgressPercent%"></div>
         </div>
         <p class="progress-text">
-            Exercise @(currentExerciseIndex + 1)
-            of @Session!.Exercises.Count
+            Exercise @(currentExerciseIndex + 1) of @Session.Exercises.Count
         </p>
     </div>
 
@@ -67,15 +72,24 @@ else
                 <div class="set-inputs">
                     <input type="number"
                            placeholder="Reps"
-                           @bind="set.CurrentReps"
+                           min="0"
+                           step="1"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           @bind-value="set.CurrentReps"
+                           @bind-value:event="oninput"
                            disabled="@set.Completed"
                            autofocus="@isActive" />
 
                     <input type="number"
                            placeholder="kg"
+                           min="0"
                            step="0.5"
-                           @bind="set.CurrentWeight"
+                           inputmode="decimal"
+                           @bind-value="set.CurrentWeight"
+                           @bind-value:event="oninput"
                            disabled="@set.Completed" />
+
                 </div>
 
                 <input type="checkbox"
@@ -85,11 +99,52 @@ else
         }
     </div>
 
-    <button class="finish-button"
-            disabled="@(!AllSetsCompleted)"
-            @onclick="NextOrFinish">
-        @ButtonText
-    </button>
+    <div class="exercise-navigation">
+        <button class="nav-button"
+                disabled="@(!CanGoPrevious)"
+                @onclick="GoPrevious">
+            Previous
+        </button>
+
+        @if (!IsLastExercise)
+        {
+            <button class="nav-button"
+                    disabled="@(!CanGoNext)"
+                    @onclick="GoNext">
+                Next
+            </button>
+        }
+        else
+        {
+            <button class="finish-button"
+                    disabled="@(!CanFinishWorkout)"
+                    @onclick="FinishWorkout">
+                Finish workout
+            </button>
+        }
+    </div>
+}
+
+@if (ShowStopConfirm)
+{
+    <div class="confirm-backdrop">
+        <div class="confirm-modal">
+            <h3>Stop workout?</h3>
+            <p class="muted">
+                Your progress will be lost.
+            </p>
+
+            <div class="confirm-actions">
+                <button class="secondary" @onclick="CloseStopConfirm">
+                    Cancel
+                </button>
+
+                <button class="danger" @onclick="ConfirmStopWorkout">
+                    Stop workout
+                </button>
+            </div>
+        </div>
+    </div>
 }
 
 @if (ShowRest)
@@ -107,26 +162,37 @@ else
 
     bool IsLoading = true;
     bool HasError = false;
+    bool ShowStopConfirm = false;
 
     bool ShowRest = false;
     int RestKey = 0;
     int RestSeconds = 60;
 
-    WorkoutSessionExerciseDto CurrentExercise =>
-        Session!.Exercises[currentExerciseIndex];
+    WorkoutSessionExerciseDto? CurrentExercise =>
+        Session?.Exercises.ElementAtOrDefault(currentExerciseIndex);
 
     int ProgressPercent =>
-        (int)(((currentExerciseIndex + 1) /
-              (double)Session!.Exercises.Count) * 100);
+        Session == null || Session.Exercises.Count == 0
+            ? 0
+            : (int)(((currentExerciseIndex + 1) /
+                    (double)Session.Exercises.Count) * 100);
 
     bool IsLastExercise =>
-        currentExerciseIndex == Session!.Exercises.Count - 1;
+        Session != null &&
+        currentExerciseIndex == Session.Exercises.Count - 1;
 
-    string ButtonText =>
-        IsLastExercise ? "Finish workout" : "Next exercise";
+    bool CanGoPrevious =>
+        currentExerciseIndex > 0;
 
-    bool AllSetsCompleted =>
-        CurrentExercise.SetsData.All(s => s.Completed);
+    bool CanGoNext =>
+        Session != null &&
+        currentExerciseIndex < Session.Exercises.Count - 1;
+
+    bool CanFinishWorkout =>
+        Session != null &&
+        Session.Exercises
+            .SelectMany(e => e.SetsData)
+            .All(s => s.Completed);
 
     protected override async Task OnInitializedAsync()
     {
@@ -143,10 +209,8 @@ else
             Session = await Api.GetWorkoutSession(SessionId);
 
             foreach (var exercise in Session.Exercises)
-            {
                 foreach (var set in exercise.SetsData)
                     set.Completed = false;
-            }
         }
         catch
         {
@@ -163,24 +227,18 @@ else
 
     bool IsActiveSet(WorkoutSessionSetDto set)
     {
-        if (set.Completed)
+        if (set.Completed || CurrentExercise == null)
             return false;
 
-        var next = CurrentExercise.SetsData
-            .FirstOrDefault(s => !s.Completed);
-
-        return next == set;
+        return CurrentExercise.SetsData.FirstOrDefault(s => !s.Completed) == set;
     }
 
     void OnSetToggle(WorkoutSessionSetDto set, bool completed)
     {
         set.Completed = completed;
+        if (!completed) return;
 
-        if (!completed)
-            return;
-
-        RestSeconds = CurrentExercise.TargetReps <= 5 ? 120 : 60;
-
+        RestSeconds = CurrentExercise!.TargetReps <= 5 ? 120 : 60;
         RestKey++;
         ShowRest = true;
     }
@@ -192,18 +250,24 @@ else
         return Task.CompletedTask;
     }
 
-    async Task NextOrFinish()
+    void GoPrevious()
     {
-        if (!AllSetsCompleted)
-            return;
+        if (CanGoPrevious)
+            currentExerciseIndex--;
+    }
 
-        if (!IsLastExercise)
-        {
+    void GoNext()
+    {
+        if (CanGoNext)
             currentExerciseIndex++;
-            return;
-        }
+    }
 
-        var payload = Session!.Exercises.Select(e =>
+    async Task FinishWorkout()
+    {
+        if (!CanFinishWorkout || Session == null)
+            return;
+
+        var payload = Session.Exercises.Select(e =>
             new FinishWorkoutSessionExerciseDto
             {
                 WorkoutSessionExerciseId = e.TemplateExerciseId,
@@ -217,6 +281,16 @@ else
             }).ToList();
 
         await Api.FinishWorkoutSession(SessionId, payload);
+        Nav.NavigateTo("/");
+    }
+
+    void OpenStopConfirm() => ShowStopConfirm = true;
+    void CloseStopConfirm() => ShowStopConfirm = false;
+
+    async Task ConfirmStopWorkout()
+    {
+        ShowStopConfirm = false;
+        await Api.DeleteWorkoutSession(SessionId);
         Nav.NavigateTo("/");
     }
 }
