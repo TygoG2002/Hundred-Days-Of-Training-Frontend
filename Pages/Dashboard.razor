@@ -48,6 +48,17 @@
             <h3 class="section-title">Still to do today</h3>
 
             <div class="grid">
+                 @foreach (var template in TodayTemplates)
+                  {
+                        <div class="card card-today-template"
+                             @onclick="() => StartTemplate(template.TemplateId)">
+                            <div class="card-header">
+                                <h3>@template.Name</h3>
+                            </div>
+
+                            <p class="plan-cta">Start workout →</p>
+                        </div>
+                    }
                 @foreach (var workout in TodayPlans)
                 {
                     <div class="card card-today"
@@ -63,27 +74,11 @@
                         <p class="plan-cta">Start workout →</p>
                     </div>
                 }
+                  
             </div>
         }
 
-        @if (TodayTemplates.Any())
-        {
-            <h3 class="section-title">Scheduled workout</h3>
-
-            <div class="grid">
-                @foreach (var template in TodayTemplates)
-                {
-                    <div class="card card-today"
-                         @onclick="() => StartTemplate(template.TemplateId)">
-                        <div class="card-header">
-                            <h3>@template.Name</h3>
-                        </div>
-
-                        <p class="plan-cta">Start workout →</p>
-                    </div>
-                }
-            </div>
-        }
+      
     }
 </section>
 
