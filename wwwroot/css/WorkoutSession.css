@@ -324,3 +324,13 @@ body {
         border: none;
         color: #fff;
     }
+
+
+/*  iOS zoom on inputs */
+
+.set,
+.set *,
+.set-inputs,
+.set-inputs * {
+    transform: none !important;
+}
