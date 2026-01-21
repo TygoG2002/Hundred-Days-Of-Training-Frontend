@@ -28,7 +28,7 @@
     else if (!TodayPlans.Any() && !TodayTemplates.Any() && AllCompleted)
     {
         <div class="empty-state celebration">
-            <h2>🏆 You did it.</h2>
+            <h2>You did it.</h2>
             <p>You completed all your workouts.</p>
             <p class="muted">100 days. No excuses. Respect. 💪</p>
         </div>
@@ -36,12 +36,16 @@
     else if (!TodayPlans.Any() && !TodayTemplates.Any())
     {
         <div class="empty-state">
-            <p>🎉 You’re all done for today.</p>
-            <p class="muted">@Motivation</p>
+            <img class="ic_celebrate"
+                 src="ic_celebrate.png"
+                 style="width:200px;" />
+            <p>You’re all done for today!</p>
         </div>
     }
     else
     {
+        
+
         @if (TodayPlans.Any())
         @if (TodayPlans.Any())
         {
@@ -109,15 +113,9 @@
                 }
             </div>
         }
-
-
     </div>
     </div>
 </section>
-
-
-
-
 
 <section class="dashboard-section danger">
     <h3 class="section-title">Daily Discipline</h3>
@@ -189,15 +187,6 @@
         }
     }
 
-    string Motivation =>
-        DateTime.Now.DayOfYear switch
-        {
-            var d when d % 5 == 0 => "Consistency beats motivation.",
-            var d when d % 5 == 1 => "Just showing up is enough.",
-            var d when d % 5 == 2 => "One workout closer to your goal.",
-            var d when d % 5 == 3 => "Don’t break the chain.",
-            _ => "Small effort. Big results."
-        };
 
     string DisciplineTitle =>
         (DateTime.Today.DayOfYear % 8) switch
