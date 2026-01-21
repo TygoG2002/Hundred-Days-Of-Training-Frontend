@@ -36,17 +36,13 @@
     else if (!TodayPlans.Any() && !TodayTemplates.Any())
     {
         <div class="empty-state">
-            <img class="ic_celebrate"
-                 src="ic_celebrate.png"
-                 style="width:200px;" />
             <p>You’re all done for today!</p>
+            <img src="ic_celebrate.png"/>
         </div>
     }
     else
     {
         
-
-        @if (TodayPlans.Any())
         @if (TodayPlans.Any())
         {
             <h3 class="section-title">Still to do today</h3>
@@ -84,6 +80,27 @@
 
       
     }
+    
+
+
+</section>
+
+<section> 
+
+    @if (TodayHabits.Any())
+    {
+        <h3 class="section-title">Habits for today</h3>
+
+        <div class="habits-grid">
+            @foreach (var habit in TodayHabits)
+            {
+                <HabitCard Habit="habit"
+                           OnAddValue="HandleHabitAdd" />
+            }
+        </div>
+    }
+
+
 </section>
 
 <h3 class="section-title">Plan your workouts</h3>
@@ -150,6 +167,7 @@
 
     bool DisciplineCompleted;
 
+    List<HabitTodayDto> TodayHabits = new();
 
     List<PlanOverviewDto> TodayPlans =>
         Today?.Plans ?? new();
@@ -275,6 +293,8 @@
             DayOfWeeks = await Api.GetDayOfWeekPlanning();
             allTemplates = await Api.GetTemplates();
 
+            TodayHabits = await Api.GetHabitsAsync();
+
 
             var plans = await Api.GetPlansOverview();
             AllCompleted = plans.Any() &&
@@ -324,4 +344,15 @@
         var key = $"discipline-{DateTime.Today:yyyy-MM-dd}";
         await JS.InvokeVoidAsync("localStorage.setItem", key, "done");
     }
+
+ 
+
+    async Task HandleHabitAdd((int HabitId, int Amount) data)
+    {
+        await Api.UpdateHabitValue(data.HabitId, data.Amount);
+        TodayHabits = await Api.GetHabitsAsync();
+        StateHasChanged();
+    }
+
+
 }

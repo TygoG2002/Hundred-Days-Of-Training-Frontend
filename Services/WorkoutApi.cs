@@ -144,6 +144,21 @@ public class WorkoutApi
         response.EnsureSuccessStatusCode();
     }
 
+    /* HABITS */
+
+    public async Task<List<HabitTodayDto>> GetHabitsAsync()
+    {
+        return await _http.GetFromJsonAsync<List<HabitTodayDto>>("api/habits")
+               ?? new();
+    }
+
+    public async Task UpdateHabitValue(int habitId, int amount)
+    {
+        await _http.PostAsJsonAsync(
+            $"api/habits/{habitId}/add-value",
+            new { amount });
+    }
+
 
 
     /* DASHBOARD */

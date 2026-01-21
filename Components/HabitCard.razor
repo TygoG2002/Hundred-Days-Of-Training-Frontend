@@ -1,0 +1,67 @@
+﻿<div class="habit-card @(Habit.TodayCompleted ? "completed" : "")">
+    <div class="habit-header">
+        <h3>@Habit.Name</h3>
+    </div>
+
+    <div class="habit-progress">
+        <div class="progress-bar">
+            <div class="progress-fill"
+                 style="width:@ProgressPercent%">
+            </div>
+        </div>
+
+        <span class="progress-text">
+            @Habit.TodayValue / @Habit.TargetValue
+        </span>
+    </div>
+
+    @if (!Habit.TodayCompleted)
+    {
+        <div class="habit-input">
+            <input type="number"
+                   min="1"
+                   placeholder="Add amount"
+                   @bind="customAmount"
+                   @bind:event="oninput"
+                   @onkeydown="OnKeyDown" />
+
+           
+        </div>
+        <button class="habit-btn large"
+                disabled="@(!CanSubmit)"
+                @onclick="Submit">
+            Add
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public HabitTodayDto Habit { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<(int HabitId, int Amount)> OnAddValue { get; set; }
+
+    int customAmount;
+
+    int ProgressPercent =>
+        Habit.TargetValue == 0
+            ? 0
+            : Math.Min(100, Habit.TodayValue * 100 / Habit.TargetValue);
+
+    bool CanSubmit => customAmount > 0;
+
+    async Task Submit()
+    {
+        if (!CanSubmit) return;
+
+        await OnAddValue.InvokeAsync((Habit.Id, customAmount));
+        customAmount = 0;
+    }
+
+    async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await Submit();
+    }
+}
