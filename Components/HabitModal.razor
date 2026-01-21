@@ -42,12 +42,17 @@
 
     async Task Submit()
     {
-        if (amount <= 0) return;
+        if (amount <= 0)
+            return;
+
+        await OnClose.InvokeAsync();
+
         await OnSubmit.InvokeAsync(amount);
     }
 
     async Task MarkDone()
     {
+        await OnClose.InvokeAsync();
         await OnSubmit.InvokeAsync(1);
     }
 
