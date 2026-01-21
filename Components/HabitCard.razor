@@ -1,39 +1,49 @@
-﻿<div class="habit-card @(Habit.TodayCompleted ? "completed" : "")">
+﻿<div class="habit-card @(Habit.TodayCompleted ? "completed" : "")"
+     role="button"
+     tabindex="0"
+     @onclick="Open">
+
     <div class="habit-header">
         <h3>@Habit.Name</h3>
+
+        @if (Habit.TodayCompleted)
+        {
+            <span class="habit-status done">✓</span>
+        }
+        else
+        {
+            <span class="habit-status pending">Today</span>
+        }
     </div>
 
-    <div class="habit-progress">
-        <div class="progress-bar">
-            <div class="progress-fill"
-                 style="width:@ProgressPercent%">
-            </div>
-        </div>
-
-        <span class="progress-text">
-            @Habit.TodayValue / @Habit.TargetValue
-        </span>
-    </div>
-
-    @if (!Habit.TodayCompleted)
+    @if (Habit.IsValueBased)
     {
-        <div class="habit-input">
-            <input type="number"
-                   min="1"
-                   placeholder="Add amount"
-                   @bind="customAmount"
-                   @bind:event="oninput"
-                   @onkeydown="OnKeyDown" />
+        <div class="habit-progress">
+            <div class="progress-bar">
+                <div class="progress-fill"
+                     style="width:@ProgressPercent%"></div>
+            </div>
 
-           
+            <span class="progress-text">
+                @Habit.TodayValue / @Habit.TargetValue
+            </span>
         </div>
-        <button class="habit-btn large"
-                disabled="@(!CanSubmit)"
-                @onclick="Submit">
-            Add
-        </button>
+    }
+    else
+    {
+        <div class="habit-binary-hint">
+            Tap to mark done
+        </div>
     }
 </div>
+
+@if (showModal)
+{
+    <HabitModal Habit="Habit"
+                OnSubmit="HandleSubmit"
+                OnClose="Close" />
+}
+
 
 @code {
     [Parameter, EditorRequired]
@@ -42,26 +52,19 @@
     [Parameter]
     public EventCallback<(int HabitId, int Amount)> OnAddValue { get; set; }
 
-    int customAmount;
+    bool showModal;
 
     int ProgressPercent =>
-        Habit.TargetValue == 0
+        Habit.TargetValue is null or 0
             ? 0
-            : Math.Min(100, Habit.TodayValue * 100 / Habit.TargetValue);
+            : Math.Min(100, Habit.TodayValue * 100 / Habit.TargetValue.Value);
 
-    bool CanSubmit => customAmount > 0;
+    void Open() => showModal = true;
+    void Close() => showModal = false;
 
-    async Task Submit()
+    async Task HandleSubmit(int amount)
     {
-        if (!CanSubmit) return;
-
-        await OnAddValue.InvokeAsync((Habit.Id, customAmount));
-        customAmount = 0;
-    }
-
-    async Task OnKeyDown(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-            await Submit();
+        await OnAddValue.InvokeAsync((Habit.Id, amount));
+        showModal = false;
     }
 }

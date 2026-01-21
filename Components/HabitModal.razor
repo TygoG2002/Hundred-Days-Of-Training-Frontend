@@ -1,0 +1,64 @@
+﻿<div class="modal-backdrop" @onclick="Close">
+    <div class="modal-card" @onclick:stopPropagation>
+        <h3>@Habit.Name</h3>
+
+        @if (Habit.IsValueBased)
+        {
+            <input type="number"
+                   min="1"
+                   inputmode="numeric"
+                   placeholder="Add amount"
+                   @bind="amount"
+                   @bind:event="oninput"
+                   @onkeydown="OnKeyDown" />
+
+            <button class="habit-btn large"
+                    disabled="@(amount <= 0)"
+                    @onclick="Submit">
+                Add
+            </button>
+        }
+        else
+        {
+            <button class="habit-btn large"
+                    @onclick="MarkDone">
+                Done
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public HabitTodayDto Habit { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<int> OnSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    int amount;
+
+    async Task Submit()
+    {
+        if (amount <= 0) return;
+        await OnSubmit.InvokeAsync(amount);
+    }
+
+    async Task MarkDone()
+    {
+        await OnSubmit.InvokeAsync(1);
+    }
+
+    async Task Close()
+    {
+        await OnClose.InvokeAsync();
+    }
+
+    async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await Submit();
+    }
+}

@@ -141,3 +141,59 @@
     .habit-card.completed .habit-input {
         display: none;
     }
+
+
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.modal-card {
+    background: #121212;
+    border-radius: 18px;
+    padding: 24px;
+    width: 90%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: pop 0.2s ease;
+}
+
+    .modal-card h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .modal-card input {
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid #2a2a2a;
+        background: #0f0f0f;
+        color: #fff;
+    }
+
+.modal-cancel {
+    background: none;
+    border: none;
+    color: #999;
+    font-weight: 600;
+}
+
+@keyframes pop {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
