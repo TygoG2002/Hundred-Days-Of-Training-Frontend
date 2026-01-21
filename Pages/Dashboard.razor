@@ -445,9 +445,8 @@
 
     async Task StartTemplate(int templateId)
     {
-        var session = await Api.StartWorkoutSession(templateId);
-
         Nav.NavigateTo($"/Templates/{templateId}");
+
     }
 
     async Task CompleteDiscipline()

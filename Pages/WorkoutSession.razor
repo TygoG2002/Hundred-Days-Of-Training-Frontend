@@ -194,8 +194,11 @@ else
             .SelectMany(e => e.SetsData)
             .All(s => s.Completed);
 
+    [Parameter] public int TemplateId { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        var session = await Api.StartWorkoutSession(TemplateId);
         await Load();
     }
 
