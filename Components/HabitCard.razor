@@ -40,17 +40,22 @@
 @if (showModal)
 {
     <HabitModal Habit="Habit"
-                OnSubmit="HandleSubmit"
+                OnAddValue="HandleAddValue"
+                OnComplete="HandleComplete"
                 OnClose="Close" />
-}
 
+}
+ 
 
 @code {
     [Parameter, EditorRequired]
     public HabitTodayDto Habit { get; set; } = default!;
 
     [Parameter]
-    public EventCallback<(int HabitId, int Amount)> OnAddValue { get; set; }
+    public EventCallback<int> OnAddValue { get; set; }
+
+    [Parameter]
+    public EventCallback OnComplete { get; set; }
 
     bool showModal;
 
@@ -59,12 +64,25 @@
             ? 0
             : Math.Min(100, Habit.TodayValue * 100 / Habit.TargetValue.Value);
 
-    void Open() => showModal = true;
+    void Open()
+    {
+        if (Habit.TodayCompleted)
+            return;
+
+        showModal = true;
+    }
+
     void Close() => showModal = false;
 
-    async Task HandleSubmit(int amount)
+    async Task HandleAddValue(int amount)
     {
-        await OnAddValue.InvokeAsync((Habit.Id, amount));
+        await OnAddValue.InvokeAsync(amount);
+        showModal = false;
+    }
+
+    async Task HandleComplete()
+    {
+        await OnComplete.InvokeAsync();
         showModal = false;
     }
 }

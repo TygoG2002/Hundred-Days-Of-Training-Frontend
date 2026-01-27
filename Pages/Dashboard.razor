@@ -97,7 +97,9 @@
             @foreach (var habit in TodayHabits)
             {
                 <HabitCard Habit="habit"
-                           OnAddValue="HandleHabitAdd" />
+                           OnAddValue="amount => HandleHabitAdd(habit.Id, amount)"
+                           OnComplete="() => HandleHabitComplete(habit.Id)" />
+
             }
         </div>
     }
@@ -356,12 +358,21 @@
 
  
 
-    async Task HandleHabitAdd((int HabitId, int Amount) data)
+    async Task HandleHabitAdd(int habitId, int amount)
     {
-        await Api.UpdateHabitValue(data.HabitId, data.Amount);
+        await Api.AddHabitValueAsync(habitId, amount);
         TodayHabits = await Api.GetHabitsAsync();
         StateHasChanged();
     }
+
+
+    async Task HandleHabitComplete(int habitId)
+    {
+        await Api.CompleteHabitAsync(habitId);
+        TodayHabits = await Api.GetHabitsAsync();
+        StateHasChanged();
+    }
+
 
 
 }

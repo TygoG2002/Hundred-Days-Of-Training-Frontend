@@ -152,13 +152,20 @@ public class WorkoutApi
                ?? new();
     }
 
-    public async Task UpdateHabitValue(int habitId, int amount)
+    public async Task AddHabitValueAsync(int habitId, int amount)
     {
         await _http.PostAsJsonAsync(
             $"api/habits/{habitId}/add-value",
             new { amount });
     }
 
+    public async Task CompleteHabitAsync(int habitId)
+    {
+        await _http.PostAsync(
+            $"api/habits/{habitId}/complete",
+            null
+        );
+    }
 
 
     /* DASHBOARD */
