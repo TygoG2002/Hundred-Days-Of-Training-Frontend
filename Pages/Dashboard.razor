@@ -125,12 +125,23 @@
 
                 @foreach (var item in DayOfWeeks.Where(d => d.DayOfWeek == day.Day))
                 {
-                    <div class="card-days"
+                        @if(CompletedDaysThisWeek.Contains(item.DayOfWeek))
+                        {
+
+                            <div class="card-days-finished"
+                                 @key="item.Id"
+                                 data-schedule-id="@item.Id">
+                                @GetTemplateName(item.templateId)
+                            </div>
+                        }
+                        else
+                        {
+                        <div class="card-days"
                          @key="item.Id"
                          data-schedule-id="@item.Id">
                         @GetTemplateName(item.templateId)
                     </div>
-
+                        }
                 }
             </div>
         }
@@ -188,6 +199,7 @@
 
     List<WorkoutTemplatesDto> allTemplates = new();
     List<WeekPlanningDto> DayOfWeeks = new();
+    List<int> CompletedDaysThisWeek = new(); 
 
     readonly (int Day, string Name)[] WeekDays =
 {
@@ -281,10 +293,6 @@
     }
 
 
-  
-
-
-
     protected override async Task OnInitializedAsync()
     {
         var key = $"discipline-{DateTime.Today:yyyy-MM-dd}";
@@ -302,6 +310,7 @@
 
             Today = await Api.GetTodayWorkouts();
             DayOfWeeks = await Api.GetDayOfWeekPlanning();
+            CompletedDaysThisWeek = await Api.GetWeekProgress(); 
             allTemplates = await Api.GetTemplates();
 
             TodayHabits = await Api.GetHabitsAsync();
@@ -357,7 +366,6 @@
     }
 
  
-
     async Task HandleHabitAdd(int habitId, int amount)
     {
         await Api.AddHabitValueAsync(habitId, amount);
