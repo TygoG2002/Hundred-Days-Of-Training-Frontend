@@ -14,14 +14,16 @@
 
             <button class="habit-btn large"
                     disabled="@(amount <= 0)"
-                    @onclick="SubmitValue">
+                    @onclick="SubmitValue"
+                    @onclick:stopPropagation>
                 Add
             </button>
         }
         else
         {
             <button class="habit-btn large"
-                    @onclick="SubmitComplete">
+                    @onclick="SubmitComplete"
+                    @onclick:stopPropagation>
                 Done
             </button>
         }
@@ -32,43 +34,47 @@
     [Parameter, EditorRequired]
     public HabitTodayDto Habit { get; set; } = default!;
 
-    // 🔹 value-based
     [Parameter]
     public EventCallback<int> OnAddValue { get; set; }
 
-    // 🔹 binary
+    // binary
     [Parameter]
     public EventCallback OnComplete { get; set; }
 
     [Parameter]
     public EventCallback OnClose { get; set; }
 
-    int amount;
+    private int amount;
 
-    async Task SubmitValue()
+    private async Task SubmitValue()
     {
         if (amount <= 0)
             return;
 
         await OnAddValue.InvokeAsync(amount);
-        await Close();
+
+        amount = 0;
+
+        await OnClose.InvokeAsync();
     }
 
-    async Task SubmitComplete()
+    private async Task SubmitComplete()
     {
         await OnComplete.InvokeAsync();
-        await Close();
+        await OnClose.InvokeAsync();
     }
 
-    async Task Close()
+    private async Task Close()
     {
         amount = 0;
         await OnClose.InvokeAsync();
     }
 
-    async Task OnKeyDown(KeyboardEventArgs e)
+    private async Task OnKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" && Habit.IsValueBased)
+        if (e.Key == "Enter" && Habit.IsValueBased && amount > 0)
+        {
             await SubmitValue();
+        }
     }
 }
