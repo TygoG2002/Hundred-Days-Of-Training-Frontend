@@ -182,6 +182,12 @@ public class WorkoutApi
             "api/dashboard/week");
     }
 
+    public async Task<List<int>> GetWeekProgress()
+    {
+        return await SafeGet<List<int>>(
+                  "api/dashboard/progress");
+    }
+
     public async Task UpdateWeekPlanning(int id, int dayOfWeek)
     {
         var response = await _http.PutAsJsonAsync(
